@@ -3,7 +3,11 @@ import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
 import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
 import Header from "@/shared/components/Header/Header";
-import HomeCard from "@/features/local/components/HomeCard";
+import HomeCard from "@/features/local/components/localhome/HomeCard";
+import MissionPlace from "@/features/local/components/localhome/MissionPlace";
+import Recommend from "@/features/local/components/localhome/Recommend";
+import Banner from "@/features/local/components/localhome/Banner";
+import PlaceCarousel from "@/features/local/components/localhome/PlaceCarousel";
 
 const Container = styled.div`
   padding: 40px 20px;
@@ -17,7 +21,14 @@ const Title = styled.h1`
   margin-bottom: 40px;
 `;
 
-
+const sampleItems = [
+  { name: "장소 이름" },
+  { name: "장소 이름" },
+  { name: "장소 이름" },
+  { name: "장소 이름" },
+  { name: "장소 이름" },
+  { name: "장소 이름" },
+];
 
 export default function LocalPage() {
   return (
@@ -26,6 +37,18 @@ export default function LocalPage() {
 
       <Container>
         <HomeCard />
+        <PlaceCarousel
+          title="멋사님에게 추천하는 장소"
+          items={sampleItems}
+          variant="circle"
+          itemSize={76}
+          pagination={false}
+          slidesPerView={"auto"}
+          spaceBetween={20}
+        />
+        <Recommend />
+        <Banner />
+
         <BottomNavigation></BottomNavigation>
       </Container>
     </>

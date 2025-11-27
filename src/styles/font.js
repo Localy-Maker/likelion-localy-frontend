@@ -101,9 +101,12 @@ export const font = {
     font-size: 14px;
     font-weight: 400;
   `,
+  medium12: css`
+    font-size: 12px;
+    font-weight: 500;
+  `,
   regular12: css`
     font-size: 12px;
     font-weight: 400;
   `,
-
 };
