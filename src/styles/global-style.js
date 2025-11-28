@@ -1,6 +1,22 @@
 import { createGlobalStyle, css } from "styled-components";
 
 export const GlobalStyle = createGlobalStyle`${css`
+  @font-face {
+    font-family: "Fredoka One";
+    src: url("/fonts/FredokaOne-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Inter";
+    src: url("/fonts/InterVariable.woff2") format("truetype");
+    font-weight: 400 600 700 800;
+    font-style: normal;
+    font-display: swap;
+  }
+
   *,
   *::before,
   *::after {
