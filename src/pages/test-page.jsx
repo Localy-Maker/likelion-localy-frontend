@@ -43,7 +43,7 @@ export default function TestPage() {
     <Container>
       <Title>스타일 테스트</Title>
       <ResponsiveBox>
-        <strong>창 크기를 조절해보세요!</strong>
+        <strong>창 크기를 조절해보세요</strong>
         <br />
         <br />
         모바일(~599px): 파란색 배경, 작은 폰트
