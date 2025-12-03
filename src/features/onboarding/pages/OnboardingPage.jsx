@@ -12,7 +12,7 @@ import { updateNationality, updateInterests } from "../api/onboardingApi";
  */
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const { t, changeLanguage, language } = useLanguage();
+  const { t, changeLanguage } = useLanguage();
   const [searchParams] = useSearchParams();
   
   // URL 쿼리 파라미터에서 초기 스텝 가져오기 (기본값: 1)

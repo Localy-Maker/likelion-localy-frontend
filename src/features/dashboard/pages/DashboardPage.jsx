@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
 import * as S from "../styles/DashboardPage.styles";
 import SidebarModal from "../../onboarding/components/SidebarModal";
@@ -20,18 +19,18 @@ export default function DashboardPage() {
   
   // Daily 피드백 데이터 상태
   const [dailyFeedbackData, setDailyFeedbackData] = useState(null);
-  const [isLoadingDaily, setIsLoadingDaily] = useState(false);
-  const [dailyError, setDailyError] = useState(null);
+  const [, setIsLoadingDaily] = useState(false);
+  const [, setDailyError] = useState(null);
   
   // Week 피드백 데이터 상태
   const [weekFeedbackData, setWeekFeedbackData] = useState(null);
-  const [isLoadingWeek, setIsLoadingWeek] = useState(false);
-  const [weekError, setWeekError] = useState(null);
+  const [, setIsLoadingWeek] = useState(false);
+  const [, setWeekError] = useState(null);
   
   // Month 피드백 데이터 상태
   const [monthFeedbackData, setMonthFeedbackData] = useState(null);
-  const [isLoadingMonth, setIsLoadingMonth] = useState(false);
-  const [monthError, setMonthError] = useState(null);
+  const [, setIsLoadingMonth] = useState(false);
+  const [, setMonthError] = useState(null);
   
   // 년도 옵션 생성 (현재 년도 기준 ±5년)
   const yearOptions = [];
