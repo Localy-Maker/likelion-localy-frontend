@@ -69,11 +69,6 @@ export default function YearMonthSidebar({ isOpen, onClose, currentYear, current
     }
   }, [isOpen, triggerRef, selectedMode]);
 
-  const handleYearSelect = (year) => {
-    onSelect(year, currentMonth);
-    setSelectedMode("month");
-  };
-
   const handleMonthSelect = (month) => {
     onSelect(currentYear, month);
     onClose();

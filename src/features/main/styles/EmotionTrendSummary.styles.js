@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { colors } from "@/styles/colors";
 
 export const SummaryContainer = styled.div`
   width: 100%;

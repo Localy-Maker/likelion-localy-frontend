@@ -12,7 +12,7 @@ import SidebarModal from "@/features/onboarding/components/SidebarModal";
  */
 export default function EditMyInfoPage() {
   const navigate = useNavigate();
-  const { t, changeLanguage, language } = useLanguage();
+  const { t, changeLanguage } = useLanguage();
 
   // ========== 상태 관리 ==========
   // 사용자 입력 필드
@@ -252,7 +252,7 @@ export default function EditMyInfoPage() {
       
       return () => clearTimeout(timer);
     }
-  }, [verificationCode]);
+  }, [verificationCode, handleVerifyCode, isEmailVerified, isVerificationCodeVerified, isLoading]);
 
   /**
    * 타이머 카운트다운 효과

@@ -12,7 +12,7 @@ import { updateNationality, updateInterests } from "../api/onboardingApi";
  */
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const { t, changeLanguage, language } = useLanguage();
+  const { t, changeLanguage } = useLanguage();
   const [searchParams] = useSearchParams();
   
   // URL 쿼리 파라미터에서 초기 스텝 가져오기 (기본값: 1)
@@ -92,7 +92,7 @@ export default function OnboardingPage() {
     { id: "nature", label: t("nature"), icon: "🌳" },
     { id: "language", label: t("languageExchange"), icon: "🍸" },
     { id: "tourism", label: t("tourism"), icon: "🧳" },
-  ], [t, language]);
+  ], [t]);
 
   /**
    * 1단계 완료 버튼 활성화 조건

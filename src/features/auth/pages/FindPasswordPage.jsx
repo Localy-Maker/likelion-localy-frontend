@@ -173,7 +173,7 @@ export default function FindPasswordPage() {
       
       return () => clearTimeout(timer);
     }
-  }, [verificationCode]);
+  }, [verificationCode, handleVerifyCode, isEmailVerified, isVerificationCodeVerified, isLoading]);
   
   // ========== 타이머 관련 로직 ==========
   /**

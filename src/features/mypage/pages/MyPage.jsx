@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { getMyPage, deleteAccount } from "../api/mypageApi";
+import { deleteAccount } from "../api/mypageApi";
 import { logout } from "@/features/auth/api/authApi";
 import LogoutModal from "../components/LogoutModal";
 import * as S from "../styles/MyPage.styles";

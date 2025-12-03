@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { font } from "@/styles/font";
 
 export const Container = styled.div`
   position: relative;

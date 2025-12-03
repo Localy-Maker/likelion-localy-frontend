@@ -198,7 +198,7 @@ export default function SignupPage() {
       
       return () => clearTimeout(timer);
     }
-  }, [verificationCode]);
+  }, [verificationCode, handleVerifyCode, isEmailVerified, isVerificationCodeVerified, isLoading]);
 
   /**
    * 타이머 카운트다운 효과
