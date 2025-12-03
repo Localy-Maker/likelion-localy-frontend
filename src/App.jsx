@@ -13,6 +13,7 @@ import EditMyInfoPage from "@/features/mypage/pages/EditMyInfoPage";
 import PremiumPlanPage from "@/features/premium/pages/PremiumPlanPage";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import ChatPage from "@/features/chat/pages/ChatPage";
+import NotificationPage from "@/features/notification/pages/NotificationPage";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="/mypage/edit" element={<EditMyInfoPage />} />
               <Route path="/premium" element={<PremiumPlanPage />} />
               <Route path="/chat" element={<ChatPage />} />
+              <Route path="/notifications" element={<NotificationPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
