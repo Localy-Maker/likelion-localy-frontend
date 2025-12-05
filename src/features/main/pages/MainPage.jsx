@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import Header from "@/shared/components/Header/Header";
-import Footer from "@/shared/components/Footer/Footer";
+import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
 import BellIcon from "@/shared/components/icons/BellIcon";
 import HomeCharacterCard from "../components/HomeCharacterCard";
 import QuickActionButtons from "../components/QuickActionButtons";
@@ -80,7 +80,8 @@ export default function MainPage() {
           bookmarks={bookmarks}
         />
       </ScrollableContent>
-      <Footer />
+
+      <BottomNavigation />
     </PageWrapper>
   );
 }

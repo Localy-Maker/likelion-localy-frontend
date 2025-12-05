@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const PageWrapper = styled.div`
   width: 100%;
-  max-width: 375px; /* Figma Width */
+  max-width: 800px; /* Figma Width */
   min-height: 812px; /* Figma Height: 812px */
   margin: 0 auto;
   background: #ffffff; /* Figma Background */
