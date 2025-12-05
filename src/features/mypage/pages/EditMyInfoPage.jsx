@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useLanguage } from "@/contexts/useLanguage";
 import * as S from "../styles/EditMyInfoPage.styles";
 import { sendVerificationCode, verifyCode } from "@/features/auth/api/authApi";
-import { updateMyInfo } from "../api/mypageApi";
+import { updateMyInfo, updateNationality } from "../api/mypageApi";
 import SidebarModal from "@/features/onboarding/components/SidebarModal";
 
 /**
@@ -154,19 +154,27 @@ export default function EditMyInfoPage() {
     setError("");
     
     try {
-      const userData = {
-        email: email.trim(),
-        nickname: nickname.trim(),
-        displayLanguage: displayLanguageValue,
-        nationality: nationalityValue,
-      };
+      // 1. 언어/국적 수정 (별도 API)
+      await updateNationality(displayLanguageValue, nationalityValue);
+      
+      // 2. 회원정보 수정 (비밀번호/닉네임)
+      const userData = {};
+      
+      // 닉네임이 변경된 경우에만 포함
+      if (nickname.trim() !== "") {
+        userData.nickname = nickname.trim();
+      }
       
       // 비밀번호가 입력된 경우에만 포함
       if (password.trim() !== "") {
-        userData.password = password;
+        userData.newPassword = password;
+        userData.newPasswordConfirm = confirmPassword;
       }
       
-      await updateMyInfo(userData);
+      // 비밀번호 또는 닉네임 중 하나 이상 필수
+      if (Object.keys(userData).length > 0) {
+        await updateMyInfo(verificationCode.trim(), userData);
+      }
       
       // 마이페이지로 이동
       navigate("/mypage");
