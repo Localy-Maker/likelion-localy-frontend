@@ -12,7 +12,7 @@ class WebSocketClient {
     // STOMP 클라이언트 생성
     this.stompClient = new Client({
       // SockJS를 WebSocket factory로 사용
-      webSocketFactory: () => new SockJS("http://localhost:8080/ws"),
+      webSocketFactory: () => new SockJS("https://api.localy-maker.shop/ws"),
 
       // 연결 성공 콜백
       onConnect: () => {
@@ -87,7 +87,7 @@ class WebSocketClient {
 
         // STOMP send 메서드 사용
         this.stompClient.publish({
-          destination: "/app/chat/sendMessage",
+          destination: "/app/send",
           body: JSON.stringify(payload),
         });
 

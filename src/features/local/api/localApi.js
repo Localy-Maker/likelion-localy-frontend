@@ -6,7 +6,7 @@ import apiClient from '@/shared/api/client';
  * @returns {Promise<Object>} { bookmarks, hasNext, lastBookmarkId }
  */
 export async function getBookmarks(params) {
-    const response = await apiClient.get('/bookmarks', { params });
+    const response = await apiClient.get('/api/bookmarks', { params });
     const result = response.data;
 
     if (result.success) {
@@ -21,7 +21,7 @@ export async function getBookmarks(params) {
  * @returns {Promise<Object>} { isBookmarked, bookmarkCount }
  */
 export async function toggleBookmark(placeId) {
-    const response = await apiClient.post(`/places/${placeId}/bookmarks`);
+    const response = await apiClient.post(`/api/places/${placeId}/bookmarks`);
     const result = response.data;
 
     if (result.success) {
@@ -37,7 +37,7 @@ export async function toggleBookmark(placeId) {
  * @returns {Promise<Object>} 홈 데이터
  */
 export async function getHomeData(latitude, longitude) {
-    const response = await apiClient.get('/places/home', {
+    const response = await apiClient.get('/api/places/home', {
         params: { latitude, longitude },
     });
     const result = response.data;
@@ -54,7 +54,7 @@ export async function getHomeData(latitude, longitude) {
  * @returns {Promise<Object>} 장소 상세 정보
  */
 export async function getPlaceDetail(placeId) {
-    const response = await apiClient.get(`/places/${placeId}`);
+    const response = await apiClient.get(`/api/places/${placeId}`);
     const result = response.data;
 
     if (result.success) {
@@ -68,7 +68,7 @@ export async function getPlaceDetail(placeId) {
  * @returns {Promise<Object>} { pointInfo, availableMissions, completedMissions }
  */
 export async function getMissions() {
-    const response = await apiClient.get('/missions');
+    const response = await apiClient.get('/api/missions');
     const result = response.data;
 
     if (result.success) {
@@ -89,7 +89,7 @@ export async function getMissionDetail(missionId, latitude, longitude) {
     if (latitude) params.latitude = latitude;
     if (longitude) params.longitude = longitude;
 
-    const response = await apiClient.get(`/missions/${missionId}`, { params });
+    const response = await apiClient.get(`/api/missions/${missionId}`, { params });
     const result = response.data;
 
     if (result.success) {
@@ -106,7 +106,7 @@ export async function getMissionDetail(missionId, latitude, longitude) {
  * @returns {Promise<Object>} { success, missionTitle, earnedPoints, totalPoints }
  */
 export async function verifyMission(missionId, latitude, longitude) {
-    const response = await apiClient.post(`/missions/${missionId}/verify`, {
+    const response = await apiClient.post(`/api/missions/${missionId}/verify`, {
         latitude,
         longitude,
         verificationMethod: "location"
