@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import { GlobalStyle } from "@/styles/global-style";
 import GlobalLayout from "@/shared/components/global-layout";
-import { LanguageProvider } from "@/contexts/LanguageContext";
+import { LanguageProvider } from "@/contexts/LanguageContext.jsx";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import SignupPage from "@/features/auth/pages/SignupPage";
 import FindPasswordPage from "@/features/auth/pages/FindPasswordPage";

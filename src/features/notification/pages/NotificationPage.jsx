@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import Header from "@/shared/components/Header/Header";
 import Footer from "@/shared/components/Footer/Footer";
 import ChevronLeftIcon from "@/shared/components/icons/ChevronLeftIcon";

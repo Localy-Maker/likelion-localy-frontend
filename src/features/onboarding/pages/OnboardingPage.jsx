@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/useLanguage";
 import * as S from "../styles/OnboardingPage.styles";
 import SidebarModal from "../components/SidebarModal";
 import { updateNationality, updateInterests } from "../api/onboardingApi";

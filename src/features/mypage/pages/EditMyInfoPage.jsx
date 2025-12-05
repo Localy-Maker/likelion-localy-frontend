@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/useLanguage";
 import * as S from "../styles/EditMyInfoPage.styles";
 import { sendVerificationCode, verifyCode } from "@/features/auth/api/authApi";
 import { updateMyInfo } from "../api/mypageApi";
@@ -212,7 +212,7 @@ export default function EditMyInfoPage() {
   /**
    * 인증번호 확인 핸들러
    */
-  const handleVerifyCode = async () => {
+  const handleVerifyCode = useCallback(async () => {
     if (verificationCode.trim() === "" || isLoading) return;
     
     setIsLoading(true);
@@ -238,7 +238,7 @@ export default function EditMyInfoPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [verificationCode, email, isLoading]);
 
   // ========== 인증번호 자동 확인 ==========
   /**

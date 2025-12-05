@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import Logo from "@/shared/components/Logo";
 import * as S from "../styles/SignupPage.styles";
@@ -104,20 +104,17 @@ export default function SignupPage() {
     setError("");
     
     try {
-      const result = await signup({
+      await signup({
         email: email.trim(),
         password,
+        confirmPassword,
         nickname: nickname.trim(),
       });
       
-      // needsOnboarding에 따라 페이지 이동
-      if (result.needsOnboarding) {
-        navigate("/onboarding");
-      } else {
-        navigate("/main");
-      }
+      // 회원가입 성공 시 메인 페이지로 이동
+      navigate("/main");
     } catch (err) {
-      // 에러 응답 구조: { status, code, message }
+      // 에러 응답 구조: BaseResponse 또는 CustomException
       const errorMessage = err.response?.data?.message || err.message || "회원가입에 실패했습니다.";
       setError(errorMessage);
     } finally {
@@ -147,8 +144,36 @@ export default function SignupPage() {
       setIsVerificationCodeVerified(false);
       setVerificationCode("");
     } catch (err) {
-      // 에러 응답 구조: { status, code, message }
-      const errorMessage = err.response?.data?.message || "인증번호 발송에 실패했습니다.";
+      // 에러 응답 구조 확인 및 로깅
+      console.error("이메일 인증 요청 실패:", err);
+      console.error("에러 응답:", err.response?.data);
+      console.error("에러 상태 코드:", err.response?.status);
+      
+      // 에러 메시지 추출
+      let errorMessage = "인증번호 발송에 실패했습니다.";
+      
+      if (err.response) {
+        // 서버 응답이 있는 경우
+        const status = err.response.status;
+        const data = err.response.data;
+        
+        if (status === 500) {
+          errorMessage = data?.message || "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+        } else if (status === 400) {
+          errorMessage = data?.message || "잘못된 요청입니다. 이메일을 확인해주세요.";
+        } else if (status === 409) {
+          errorMessage = data?.message || "이미 사용 중인 이메일입니다.";
+        } else {
+          errorMessage = data?.message || `요청 처리 중 오류가 발생했습니다. (${status})`;
+        }
+      } else if (err.request) {
+        // 요청은 보냈지만 응답을 받지 못한 경우
+        errorMessage = "서버에 연결할 수 없습니다. 네트워크를 확인해주세요.";
+      } else {
+        // 요청 설정 중 오류가 발생한 경우
+        errorMessage = err.message || "요청 처리 중 오류가 발생했습니다.";
+      }
+      
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -158,7 +183,7 @@ export default function SignupPage() {
   /**
    * 인증번호 확인 핸들러
    */
-  const handleVerifyCode = async () => {
+  const handleVerifyCode = useCallback(async () => {
     if (verificationCode.trim() === "" || isLoading) return;
     
     setIsLoading(true);
@@ -184,7 +209,7 @@ export default function SignupPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [verificationCode, email, isLoading]);
 
   // ========== 인증번호 자동 확인 ==========
   /**
