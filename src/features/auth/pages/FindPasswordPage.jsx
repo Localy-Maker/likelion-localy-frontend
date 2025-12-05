@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import * as S from "../styles/FindPasswordPage.styles";
+import { sendVerificationCode, resetPassword } from "../api/authApi";
 
 /**
  * 비밀번호 찾기 페이지 컴포넌트
@@ -24,7 +25,8 @@ export default function FindPasswordPage() {
   // 인증번호 타이머 관련 상태
   const [timer, setTimer] = useState(0); // 타이머 초 단위 (5분 = 300초)
   const [isTimerRunning, setIsTimerRunning] = useState(false); // 타이머 실행 여부
-  const [correctVerificationCode, setCorrectVerificationCode] = useState(""); // 서버에서 받은 올바른 인증번호
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태
+  const [error, setError] = useState(""); // 에러 메시지
 
   // ========== 검증 함수 ==========
   /**
@@ -66,15 +68,11 @@ export default function FindPasswordPage() {
   const isConfirmPasswordValid = confirmPassword.trim() !== "" && newPassword === confirmPassword;
   const showConfirmPasswordError = confirmPassword.trim() !== "" && newPassword !== confirmPassword; // 에러 메시지 표시 여부
 
-  // 인증번호 검증
-  const isVerificationCodeValid = 
-    verificationCode.trim() !== "" && 
-    correctVerificationCode !== "" && 
-    verificationCode.trim() === correctVerificationCode;
+  // 인증번호 검증 (6자리 입력 여부만 확인, 실제 확인은 백엔드에서)
+  const isVerificationCodeValid = verificationCode.trim().length === 6;
   const showVerificationCodeError = 
     verificationCode.trim() !== "" && 
-    correctVerificationCode !== "" && 
-    verificationCode.trim() !== correctVerificationCode; // 에러 메시지 표시 여부
+    verificationCode.trim().length !== 6;
 
   // ========== 완료 버튼 활성화 조건 ==========
   // 모든 필드가 올바르게 입력되었을 때만 버튼 활성화
@@ -89,42 +87,53 @@ export default function FindPasswordPage() {
    * 비밀번호 재설정 폼 제출 핸들러
    * @param {Event} e - 폼 제출 이벤트
    */
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // 버튼이 비활성화되어 있으면 제출하지 않음
-    if (!isButtonEnabled) return;
+    if (!isButtonEnabled || isLoading) return;
     
-    // TODO: 실제 비밀번호 재설정 API 호출 로직 구현 필요
-    console.log("Reset password:", {
-      email,
-      verificationCode,
-      newPassword,
-      confirmPassword,
-    });
+    setIsLoading(true);
+    setError("");
     
-    // 비밀번호 재설정 완료 후 로그인 페이지로 이동
-    navigate("/login");
+    try {
+      await resetPassword(
+        email.trim(),
+        verificationCode.trim(),
+        newPassword,
+        confirmPassword
+      );
+      navigate("/login");
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || "비밀번호 재설정에 실패했습니다.";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /**
    * 이메일 인증 요청 핸들러
    * 인증번호를 받아오고 5분 타이머를 시작합니다.
    */
-  const handleVerifyEmail = () => {
-    // TODO: 실제 이메일 인증 API 호출 로직 구현 필요
-    // 현재는 개발용으로 랜덤 인증번호를 생성합니다.
-    console.log("Verify email:", email);
+  const handleVerifyEmail = async () => {
+    if (!isEmailValid || isLoading) return;
     
-    // 임시로 6자리 랜덤 인증번호 생성 (실제로는 서버에서 받아와야 함)
-    const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setCorrectVerificationCode(generatedCode);
-    console.log("Generated verification code:", generatedCode); // 개발용 - 실제 배포 시 제거 필요
+    setIsLoading(true);
+    setError("");
     
-    // 이메일 인증 상태 활성화
-    setIsEmailVerified(true);
-    // 5분 타이머 시작 (300초)
-    setTimer(300);
-    setIsTimerRunning(true);
+    try {
+      await sendVerificationCode(email.trim());
+      
+      // 이메일 인증 상태 활성화
+      setIsEmailVerified(true);
+      // 5분 타이머 시작 (300초)
+      setTimer(300);
+      setIsTimerRunning(true);
+      setVerificationCode("");
+    } catch (err) {
+      setError(err.response?.data?.message || "인증번호 발송에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // ========== 타이머 관련 로직 ==========
@@ -232,28 +241,19 @@ export default function FindPasswordPage() {
             disabled={!isEmailVerified}
             $hasError={showVerificationCodeError}
           />
-          {/* 인증번호가 올바르면 초록색 체크 표시, 아니면 타이머 표시 */}
-          {isVerificationCodeValid ? (
-            <S.CheckIcon>
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-                  fill="#34C759"
-                />
-              </svg>
-            </S.CheckIcon>
-          ) : (
-            // 타이머가 실행 중일 때만 타이머 표시
-            isTimerRunning && timer > 0 && (
-              <S.TimerText>{formatTimer(timer)}</S.TimerText>
-            )
+          {/* 타이머 표시 (인증번호 확인은 백엔드에서 처리) */}
+          {isTimerRunning && timer > 0 && (
+            <S.TimerText>{formatTimer(timer)}</S.TimerText>
           )}
-          {/* 인증번호 불일치 에러 메시지 */}
+          {/* 인증번호 형식 에러 메시지 */}
           {showVerificationCodeError && (
-            <S.ErrorMessage>인증번호가 일치하지 않습니다.</S.ErrorMessage>
+            <S.ErrorMessage>인증번호는 6자리입니다.</S.ErrorMessage>
           )}
         </S.InputWrapper>
-
+        
+        {/* 에러 메시지 */}
+        {error && <S.ErrorMessage style={{ marginTop: "8px", textAlign: "center" }}>{error}</S.ErrorMessage>}
+        
         {/* 변경할 비밀번호 입력 필드 */}
         <S.InputWrapper>
           <S.Input
@@ -336,8 +336,8 @@ export default function FindPasswordPage() {
       </S.Form>
 
       {/* 비밀번호 재설정 완료 버튼 */}
-      <S.SubmitButton type="submit" disabled={!isButtonEnabled} $isEnabled={isButtonEnabled} onClick={handleSubmit}>
-        완료
+      <S.SubmitButton type="submit" disabled={!isButtonEnabled || isLoading} $isEnabled={isButtonEnabled && !isLoading} onClick={handleSubmit}>
+        {isLoading ? "처리 중..." : "완료"}
       </S.SubmitButton>
     </S.Container>
   );
