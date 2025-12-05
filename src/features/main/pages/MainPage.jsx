@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import Header from "@/shared/components/Header/Header";
 import Footer from "@/shared/components/Footer/Footer";
@@ -7,6 +8,7 @@ import QuickActionButtons from "../components/QuickActionButtons";
 import EmotionTrendSummary from "../components/EmotionTrendSummary";
 import BookmarkCarousel from "../components/BookmarkCarousel";
 import { PageWrapper, ScrollableContent } from "../styles/MainPage.styles";
+import { getRecentBookmarks, getWeekEmotionSummary } from "../api/homeApi";
 
 /**
  * @component MainPage
@@ -14,16 +16,41 @@ import { PageWrapper, ScrollableContent } from "../styles/MainPage.styles";
  */
 export default function MainPage() {
   const navigate = useNavigate();
+  const [bookmarks, setBookmarks] = useState([]);
+  const [emotionData, setEmotionData] = useState(null);
 
-  // ToDo: 추가될 페이지 네비게이션 매핑
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch bookmarks
+        const bookmarkResponse = await getRecentBookmarks();
+        if (bookmarkResponse.success) {
+          setBookmarks(bookmarkResponse.data);
+        }
+
+        // Fetch emotion summary
+        const emotionResponse = await getWeekEmotionSummary();
+        if (emotionResponse.success) {
+          setEmotionData(emotionResponse.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch home data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Navigation handlers
   const handleNotificationClick = () => navigate("/notifications");
   const handleChatClick = () => navigate("/chat");
-  const handleBookmarkClick = () => navigate("/bookmarks");
-  const handleMissionClick = () => navigate("/mission");
+  const handleBookmarkClick = () => navigate("/local/bookmark");
+  const handleMissionClick = () => navigate("/local/mission");
   const handleEmotionLogClick = () => navigate("/dashboard");
   const handleProfileClick = () => navigate("/mypage");
   const handleViewTrend = () => navigate("/dashboard");
-  const handleViewBookmarks = () => navigate("/bookmarks");
+  const handleViewBookmarks = () => navigate("/local/bookmark");
 
   return (
     <PageWrapper>
@@ -44,10 +71,25 @@ export default function MainPage() {
           onEmotionLogClick={handleEmotionLogClick}
           onProfileClick={handleProfileClick}
         />
-        <EmotionTrendSummary onViewMore={handleViewTrend} />
-        <BookmarkCarousel onViewAll={handleViewBookmarks} />
+        <EmotionTrendSummary
+          onViewMore={handleViewTrend}
+          emotionData={emotionData}
+        />
+        <BookmarkCarousel
+          onViewAll={handleViewBookmarks}
+          bookmarks={bookmarks}
+        />
       </ScrollableContent>
       <Footer />
     </PageWrapper>
   );
 }
+
+
+
+
+
+
+
+
+

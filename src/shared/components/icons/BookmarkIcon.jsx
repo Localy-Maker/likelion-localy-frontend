@@ -1,12 +1,15 @@
+import { colors } from "@/styles/colors";
+
 /**
  * Bookmark 아이콘 컴포넌트
  * @param {string} color - 아이콘 색상 (기본값: "black")
+ * @param {string} stroke - 외각선 색상 (기본값: "black")
  * @param {number} size - 아이콘 크기 (기본값: 24)
  * @param {string} className - 추가 CSS 클래스
  */
 const BookmarkIcon = ({
   stroke = "black",
-  color = "black",
+  color = colors.blue[50],
   size = 24,
   className,
 }) => (

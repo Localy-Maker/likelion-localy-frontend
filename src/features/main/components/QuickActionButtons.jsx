@@ -23,7 +23,7 @@ const QuickActionButtons = ({
     {
       id: "bookmark",
       label: "북마크",
-      icon: <BookmarkIcon storke="#000" color="#fff" size={24} />,
+      icon: <BookmarkIcon stroke="#000" color="#fff" size={24} />,
       onClick: onBookmarkClick,
     },
     {
