@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import * as S from "../styles/FindPasswordPage.styles";
 import { sendVerificationCode, verifyCode, resetPassword } from "../api/authApi";
@@ -101,12 +101,19 @@ export default function FindPasswordPage() {
     setError("");
     
     try {
-      await resetPassword(email.trim());
+      await resetPassword(
+        email.trim(),
+        verificationCode.trim(),
+        newPassword,
+        confirmPassword
+      );
       
       // 비밀번호 재설정 완료 후 로그인 페이지로 이동
       navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.message || "비밀번호 재설정에 실패했습니다.");
+      // 에러 응답 구조: BaseResponse 또는 CustomException
+      const errorMessage = err.response?.data?.message || err.message || "비밀번호 재설정에 실패했습니다.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -142,7 +149,7 @@ export default function FindPasswordPage() {
   /**
    * 인증번호 확인 핸들러
    */
-  const handleVerifyCode = async () => {
+  const handleVerifyCode = useCallback(async () => {
     if (verificationCode.trim() === "" || isLoading) return;
     
     setIsLoading(true);
@@ -159,7 +166,7 @@ export default function FindPasswordPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [verificationCode, email, isLoading]);
 
   // ========== 인증번호 자동 확인 ==========
   /**

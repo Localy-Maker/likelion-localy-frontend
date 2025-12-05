@@ -4,7 +4,7 @@ import axios from "axios";
  * API 기본 URL 설정
  * 환경 변수에서 가져오거나 기본값 사용
  */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.localy-maker.shop";
 
 /**
  * Axios 인스턴스 생성
@@ -40,6 +40,18 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
+    // 개발 환경에서 에러 로깅
+    if (import.meta.env.DEV) {
+      console.error("API 에러 발생:", {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        request: error.request,
+      });
+    }
+    
     if (error.response?.status === 401) {
       // 토큰 만료 시 로그인 페이지로 이동
       localStorage.removeItem("accessToken");
@@ -50,6 +62,7 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
 
 
 

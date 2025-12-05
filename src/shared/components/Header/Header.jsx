@@ -8,7 +8,8 @@ const HeaderWrapper = styled.header`
   height: 56px;
   box-sizing: border-box;
   background: #ffffff;
-  border-bottom: 0.5px solid #e6e6e6;
+  border-bottom: ${({ $showBorder }) =>
+    $showBorder ? "0.5px solid #e6e6e6" : "none"};
 `;
 
 const IconSlot = styled.button`
@@ -68,49 +69,28 @@ const Title = styled.h1`
         `}
 `;
 
-const Chevron = styled.span`
-  position: relative;
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    width: 14px;
-    height: 1.8px;
-    background: #000000;
-    border-radius: 1px;
-    left: 0;
-    transform-origin: left center;
-  }
-
-  &::before {
-    top: 50%;
-    transform: translateY(-50%) rotate(45deg);
-  }
-
-  &::after {
-    top: 50%;
-    transform: translateY(-50%) rotate(-45deg);
-  }
-`;
-
 /**
  * @params {React.ReactNode} leftIcon - 왼쪽 아이콘 컴포넌트
  * @params {React.ReactNode} rightIcon - 오른쪽 아이콘 컴포넌트
  * @params {string} text - 헤더 타이틀 텍스트
  * @params {function} onLeftClick - 왼쪽 버튼 클릭 핸들러
  * @params {function} onRightClick - 오른쪽 버튼 클릭 핸들러
+ * @params {boolean} showBorder - 하단 border 표시 여부 (기본값: true)
  *
  * @return {JSX.Element}
  */
-const Header = ({ leftIcon, rightIcon, text, onLeftClick, onRightClick }) => {
+const Header = ({
+  leftIcon,
+  rightIcon,
+  text,
+  onLeftClick,
+  onRightClick,
+  showBorder = true,
+}) => {
   const useInterFont = Boolean(text !== "Localy");
 
   return (
-    <HeaderWrapper>
+    <HeaderWrapper $showBorder={showBorder}>
       <LeftSlot onClick={onLeftClick} aria-label="왼쪽 버튼">
         {leftIcon || <ChevronLeftIcon />}
       </LeftSlot>

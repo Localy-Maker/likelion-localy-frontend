@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
 import * as S from "../styles/DashboardPage.styles";
 import SidebarModal from "../../onboarding/components/SidebarModal";
@@ -19,18 +19,12 @@ export default function DashboardPage() {
   
   // Daily 피드백 데이터 상태
   const [dailyFeedbackData, setDailyFeedbackData] = useState(null);
-  const [, setIsLoadingDaily] = useState(false);
-  const [, setDailyError] = useState(null);
   
   // Week 피드백 데이터 상태
   const [weekFeedbackData, setWeekFeedbackData] = useState(null);
-  const [, setIsLoadingWeek] = useState(false);
-  const [, setWeekError] = useState(null);
   
   // Month 피드백 데이터 상태
   const [monthFeedbackData, setMonthFeedbackData] = useState(null);
-  const [, setIsLoadingMonth] = useState(false);
-  const [, setMonthError] = useState(null);
   
   // 년도 옵션 생성 (현재 년도 기준 ±5년)
   const yearOptions = [];
@@ -79,35 +73,29 @@ export default function DashboardPage() {
   };
 
   // Daily 피드백 데이터 가져오기
-  const fetchDailyFeedback = async (date = null) => {
+  const fetchDailyFeedback = useCallback(async (date = null) => {
     if (selectedPeriod !== "Daily") return;
-    
-    setIsLoadingDaily(true);
-    setDailyError(null);
     
     try {
       const data = await getDailyFeedback(date);
       setDailyFeedbackData(data);
     } catch (error) {
       console.error("Daily 피드백 데이터 가져오기 실패:", error);
-      setDailyError(error.message || "데이터를 가져오는데 실패했습니다.");
-    } finally {
-      setIsLoadingDaily(false);
     }
-  };
+  }, [selectedPeriod]);
 
   // Daily 피드백 데이터를 차트 형식으로 변환
   const dailyChartData = dailyFeedbackData 
     ? convertDailyDataToChartFormat(dailyFeedbackData)
     : [
-        { time: 3, value: 10 },
-        { time: 6, value: 15 },
-        { time: 9, value: 25 },
-        { time: 12, value: 35 },
-        { time: 15, value: 30 },
-        { time: 18, value: 40 },
-        { time: 21, value: 45 },
-        { time: 24, value: 42 },
+    { time: 3, value: 10 },
+    { time: 6, value: 15 },
+    { time: 9, value: 25 },
+    { time: 12, value: 35 },
+    { time: 15, value: 30 },
+    { time: 18, value: 40 },
+    { time: 21, value: 45 },
+    { time: 24, value: 42 },
       ]; // 기본값 (로딩 중이거나 에러 시)
 
   // API 응답을 Week 차트 데이터 형식으로 변환
@@ -123,34 +111,28 @@ export default function DashboardPage() {
   };
 
   // Week 피드백 데이터 가져오기
-  const fetchWeekFeedback = async (date = null) => {
+  const fetchWeekFeedback = useCallback(async (date = null) => {
     if (selectedPeriod !== "Week") return;
-    
-    setIsLoadingWeek(true);
-    setWeekError(null);
     
     try {
       const data = await getWeekFeedback(date);
       setWeekFeedbackData(data);
     } catch (error) {
       console.error("Week 피드백 데이터 가져오기 실패:", error);
-      setWeekError(error.message || "데이터를 가져오는데 실패했습니다.");
-    } finally {
-      setIsLoadingWeek(false);
     }
-  };
+  }, [selectedPeriod]);
 
   // Week 피드백 데이터를 차트 형식으로 변환
   const weekChartData = weekFeedbackData 
     ? convertWeekDataToChartFormat(weekFeedbackData)
     : [
-        { day: "월", value: 20 },
-        { day: "화", value: 35 },
-        { day: "수", value: 50 },
-        { day: "목", value: 65 },
-        { day: "금", value: 80 },
-        { day: "토", value: 75 },
-        { day: "일", value: 88 },
+    { day: "월", value: 20 },
+    { day: "화", value: 35 },
+    { day: "수", value: 50 },
+    { day: "목", value: 65 },
+    { day: "금", value: 80 },
+    { day: "토", value: 75 },
+    { day: "일", value: 88 },
       ]; // 기본값 (로딩 중이거나 에러 시)
 
   // API 응답을 Month 캘린더 데이터 형식으로 변환
@@ -169,11 +151,8 @@ export default function DashboardPage() {
   };
 
   // Month 피드백 데이터 가져오기
-  const fetchMonthFeedback = async (year, month) => {
+  const fetchMonthFeedback = useCallback(async (year, month) => {
     if (selectedPeriod !== "Month") return;
-    
-    setIsLoadingMonth(true);
-    setMonthError(null);
     
     try {
       // yearMonth 형식: "202511" (YYYYMM)
@@ -182,11 +161,8 @@ export default function DashboardPage() {
       setMonthFeedbackData(data);
     } catch (error) {
       console.error("Month 피드백 데이터 가져오기 실패:", error);
-      setMonthError(error.message || "데이터를 가져오는데 실패했습니다.");
-    } finally {
-      setIsLoadingMonth(false);
     }
-  };
+  }, [selectedPeriod]);
 
   // selectedPeriod 변경 시 해당 API 호출
   useEffect(() => {
@@ -197,17 +173,17 @@ export default function DashboardPage() {
     } else if (selectedPeriod === "Month") {
       fetchMonthFeedback(currentYear, currentMonth);
     }
-  }, [selectedPeriod, currentYear, currentMonth]);
+  }, [selectedPeriod, currentYear, currentMonth, fetchDailyFeedback, fetchWeekFeedback, fetchMonthFeedback]);
 
   // Month 피드백 데이터를 캘린더 형식으로 변환
   const monthCalendarDataMap = monthFeedbackData 
     ? convertMonthDataToCalendarFormat(monthFeedbackData)
     : {
-        1: 70, 2: 10, 3: 45, 4: 35, 5: 25, 6: 50,
-        7: 80, 8: 12, 9: 40, 10: 60, 11: 30, 12: 20,
-        13: 75, 14: 48, 15: 38, 16: 35, 17: 25, 18: 65,
-        19: 85, 20: 20, 21: 50, 22: 40, 23: 30, 24: 70,
-        25: 90, 26: 14, 27: 45, 28: 60, 29: 35, 30: 80,
+    1: 70, 2: 10, 3: 45, 4: 35, 5: 25, 6: 50,
+    7: 80, 8: 12, 9: 40, 10: 60, 11: 30, 12: 20,
+    13: 75, 14: 48, 15: 38, 16: 35, 17: 25, 18: 65,
+    19: 85, 20: 20, 21: 50, 22: 40, 23: 30, 24: 70,
+    25: 90, 26: 14, 27: 45, 28: 60, 29: 35, 30: 80,
       }; // 기본값 (로딩 중이거나 에러 시)
   
   // 년/월 변경 함수 (현재 사용되지 않음, 추후 필요시 사용)

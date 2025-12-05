@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react';
-import { mockLocation } from './mockData';
-
-// 목업 데이터 사용 여부 (개발 시 true로 설정)
-const USE_MOCK_DATA = true;
 
 /**
  * 브라우저의 위치 정보를 가져오는 커스텀 훅
- * 단일 책임: 위치 정보 가져오기
  * @returns {Object} { latitude, longitude, loading, error }
  */
 export function useGeolocation() {
@@ -18,16 +13,6 @@ export function useGeolocation() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // 목업 데이터 사용
-        if (USE_MOCK_DATA) {
-            // 딜레이 최소화
-            setTimeout(() => {
-                setLocation(mockLocation);
-                setLoading(false);
-            }, 50);
-            return;
-        }
-
         // Geolocation API 지원 확인
         if (!navigator.geolocation) {
             setError('브라우저가 위치 정보를 지원하지 않습니다.');
@@ -74,4 +59,3 @@ export function useGeolocation() {
 
     return { ...location, loading, error };
 }
-

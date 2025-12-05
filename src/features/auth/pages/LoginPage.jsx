@@ -56,12 +56,8 @@ export default function LoginPage() {
                   setIsLoading(true);
                   setError("");
                   try {
-                    const result = await googleLogin(response.credential);
-                    if (result.needsOnboarding) {
-                      navigate("/onboarding");
-                    } else {
-                      navigate("/main");
-                    }
+                    await googleLogin(response.credential);
+                    navigate("/main");
                   } catch (err) {
                     const errorMessage = err.response?.data?.message || err.message || "구글 로그인에 실패했습니다.";
                     setError(errorMessage);
@@ -90,12 +86,8 @@ export default function LoginPage() {
                     setIsLoading(true);
                     setError("");
                     try {
-                      const result = await googleLogin(response.credential);
-                      if (result.needsOnboarding) {
-                        navigate("/onboarding");
-                      } else {
-                        navigate("/main");
-                      }
+                      await googleLogin(response.credential);
+                      navigate("/main");
                     } catch (err) {
                       const errorMessage = err.response?.data?.message || err.message || "구글 로그인에 실패했습니다.";
                       setError(errorMessage);
