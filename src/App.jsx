@@ -12,8 +12,9 @@ import MyPage from "@/features/mypage/pages/MyPage";
 import EditMyInfoPage from "@/features/mypage/pages/EditMyInfoPage";
 import PremiumPlanPage from "@/features/premium/pages/PremiumPlanPage";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
+import ChatPage from "@/features/chat/pages/ChatPage";
+import NotificationPage from "@/features/notification/pages/NotificationPage";
 import LoadingPage from "@/features/loading/pages/LoadingPage";
-import TestPage from "@/pages/test-page";
 
 function App() {
   return (
@@ -23,7 +24,6 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route element={<GlobalLayout />}>
-              <Route path="/test" element={<TestPage />} />
               <Route path="/" element={<LoginPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
@@ -36,6 +36,8 @@ function App() {
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/mypage/edit" element={<EditMyInfoPage />} />
               <Route path="/premium" element={<PremiumPlanPage />} />
+              <Route path="/chat" element={<ChatPage />} />
+              <Route path="/notifications" element={<NotificationPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
