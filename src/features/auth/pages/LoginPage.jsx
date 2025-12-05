@@ -1,34 +1,84 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router";
 import Logo from "@/shared/components/Logo";
 import * as S from "../styles/LoginPage.styles";
-import { login, googleLogin, getGoogleClientId } from "../api/authApi";
+import { login, getGoogleClientId, googleLogin } from "../api/authApi";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [googleClientId, setGoogleClientId] = useState(null);
+  const [error, setError] = useState("");
+  const googleClientIdRef = useRef(null);
+  const googleButtonRef = useRef(null);
 
-  const isButtonEnabled = email.trim() !== "" && password.trim() !== "";
+  const isButtonEnabled = email.trim() !== "" && password.trim() !== "" && !isLoading;
 
-  /**
-   * 기본 로그인 핸들러
-   */
+  // Google 클라이언트 ID 가져오기 및 초기화
+  useEffect(() => {
+    const initGoogleSignIn = async () => {
+      try {
+        const clientId = await getGoogleClientId();
+        googleClientIdRef.current = clientId;
+
+        // Google Sign-In 스크립트가 로드될 때까지 대기
+        const checkGoogleScript = setInterval(() => {
+          if (window.google?.accounts?.id) {
+            clearInterval(checkGoogleScript);
+            
+            // Google Sign-In 초기화
+            window.google.accounts.id.initialize({
+              client_id: clientId,
+              callback: handleGoogleCallback,
+            });
+
+            // One Tap 자동 표시 (선택사항)
+            // window.google.accounts.id.prompt();
+          }
+        }, 100);
+
+        // 10초 후에도 스크립트가 로드되지 않으면 타임아웃
+        setTimeout(() => {
+          clearInterval(checkGoogleScript);
+        }, 10000);
+      } catch (err) {
+        console.error("Google 클라이언트 ID 가져오기 실패:", err);
+      }
+    };
+
+    initGoogleSignIn();
+  }, []);
+
+  // Google 로그인 콜백
+  const handleGoogleCallback = async (response) => {
+    if (response.credential) {
+      try {
+        setIsLoading(true);
+        setError("");
+        await googleLogin(response.credential);
+        navigate("/main");
+      } catch (err) {
+        setError(err.response?.data?.message || "Google 로그인에 실패했습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setError("Google 로그인에 실패했습니다.");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isButtonEnabled || isLoading) return;
+    if (!isButtonEnabled) return;
     
     setIsLoading(true);
     setError("");
     
     try {
-      await login(email, password);
-      // 로그인 성공 시 온보딩 페이지로 이동 (또는 메인 페이지)
-      navigate("/onboarding");
+      await login(email.trim(), password);
+      navigate("/main");
     } catch (err) {
       setError(err.response?.data?.message || "로그인에 실패했습니다.");
     } finally {
@@ -37,104 +87,51 @@ export default function LoginPage() {
   };
 
   /**
-   * 백엔드에서 Google 클라이언트 ID 가져오기 및 초기화
-   */
-  useEffect(() => {
-    const fetchClientId = async () => {
-      try {
-        const clientId = await getGoogleClientId();
-        setGoogleClientId(clientId);
-        
-        // Google Identity Services가 로드될 때까지 대기
-        const checkGoogle = setInterval(() => {
-          if (window.google?.accounts?.id) {
-            // Google 로그인 초기화
-            window.google.accounts.id.initialize({
-              client_id: clientId,
-              callback: async (response) => {
-                if (response.credential) {
-                  setIsLoading(true);
-                  setError("");
-                  try {
-                    await googleLogin(response.credential);
-                    navigate("/main");
-                  } catch (err) {
-                    const errorMessage = err.response?.data?.message || err.message || "구글 로그인에 실패했습니다.";
-                    setError(errorMessage);
-                    setIsLoading(false);
-                  }
-                }
-              },
-            });
-            clearInterval(checkGoogle);
-          }
-        }, 100);
-
-        return () => clearInterval(checkGoogle);
-      } catch (err) {
-        console.error("Google 클라이언트 ID를 가져오는데 실패했습니다:", err);
-        // 백엔드 API가 없을 경우 환경 변수에서 가져오기 (fallback)
-        const envClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-        if (envClientId && envClientId !== "your-google-client-id-here") {
-          setGoogleClientId(envClientId);
-          const checkGoogle = setInterval(() => {
-            if (window.google?.accounts?.id) {
-              window.google.accounts.id.initialize({
-                client_id: envClientId,
-                callback: async (response) => {
-                  if (response.credential) {
-                    setIsLoading(true);
-                    setError("");
-                    try {
-                      await googleLogin(response.credential);
-                      navigate("/main");
-                    } catch (err) {
-                      const errorMessage = err.response?.data?.message || err.message || "구글 로그인에 실패했습니다.";
-                      setError(errorMessage);
-                      setIsLoading(false);
-                    }
-                  }
-                },
-              });
-              clearInterval(checkGoogle);
-            }
-          }, 100);
-          return () => clearInterval(checkGoogle);
-        }
-      }
-    };
-
-    fetchClientId();
-  }, [navigate]);
-
-  /**
-   * 구글 로그인 버튼 클릭 핸들러
-   * Google Identity Services의 로그인 플로우를 시작합니다.
+   * 구글 로그인 핸들러
+   * Google Sign-In 버튼 클릭 시 실행
    */
   const handleGoogleLogin = () => {
-    if (isLoading) return;
-    
-    const clientId = googleClientId;
-    
-    if (!clientId) {
-      setError("Google 클라이언트 ID를 불러오는 중입니다.\n잠시 후 다시 시도해주세요.");
+    if (!googleClientIdRef.current) {
+      setError("Google 로그인을 초기화하는 중입니다. 잠시 후 다시 시도해주세요.");
       return;
     }
 
-    // Google Identity Services가 로드되었는지 확인
     if (!window.google?.accounts?.id) {
-      setError("Google 로그인 서비스를 불러올 수 없습니다. 페이지를 새로고침해주세요.");
+      setError("Google 로그인 스크립트가 로드되지 않았습니다.");
       return;
     }
 
-    // Google 로그인 플로우 시작 (팝업 또는 One Tap)
+    setIsLoading(true);
+    setError("");
+
+    // Google Sign-In 팝업 열기 (One Tap 시도)
     window.google.accounts.id.prompt((notification) => {
+      // One Tap이 표시되지 않거나 스킵된 경우
       if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        // One Tap이 표시되지 않으면 수동으로 로그인 요청
-        // 이 경우 사용자가 버튼을 클릭했으므로 로그인 플로우를 계속 진행
-        // callback은 이미 useEffect에서 설정되어 있음
-        setIsLoading(true);
-        setError("");
+        // 숨겨진 버튼을 렌더링하여 클릭 이벤트 트리거
+        const hiddenButton = document.createElement("div");
+        hiddenButton.style.display = "none";
+        document.body.appendChild(hiddenButton);
+        
+        window.google.accounts.id.renderButton(hiddenButton, {
+          theme: "outline",
+          size: "large",
+          type: "standard",
+          text: "signin_with",
+        });
+
+        // 버튼 클릭 시뮬레이션
+        setTimeout(() => {
+          const button = hiddenButton.querySelector("div[role='button']");
+          if (button) {
+            button.click();
+          } else {
+            setError("Google 로그인을 시작할 수 없습니다. 페이지를 새로고침해주세요.");
+            setIsLoading(false);
+          }
+        }, 100);
+      } else if (notification.isDismissedMoment()) {
+        setIsLoading(false);
       }
     });
   };
@@ -182,17 +179,22 @@ export default function LoginPage() {
           </S.PasswordToggle>
         </S.InputWrapper>
         
-        {error && <S.ErrorMessage>{error}</S.ErrorMessage>}
-        <S.LoginButton type="submit" disabled={!isButtonEnabled || isLoading} $isEnabled={isButtonEnabled && !isLoading}>
+        <S.LoginButton type="submit" disabled={!isButtonEnabled} $isEnabled={isButtonEnabled}>
           {isLoading ? "로그인 중..." : "로그인"}
         </S.LoginButton>
       </S.Form>
+      
+      {error && (
+        <S.ErrorMessage style={{ marginTop: "8px", textAlign: "center", color: "#FF3B30" }}>
+          {error}
+        </S.ErrorMessage>
+      )}
       
       <S.Divider>
         <span>or</span>
       </S.Divider>
       
-      <S.GoogleButton type="button" onClick={handleGoogleLogin}>
+      <S.GoogleButton type="button" onClick={handleGoogleLogin} disabled={isLoading} ref={googleButtonRef}>
         <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M19.6 10.2273C19.6 9.51818 19.5364 8.83636 19.4182 8.18182H10V12.05H15.3818C15.15 13.3 14.4455 14.3591 13.3864 15.0682V17.5773H16.6182C18.5091 15.8364 19.6 13.2727 19.6 10.2273Z" fill="#4285F4"/>
           <path d="M10 20C12.7 20 14.9636 19.1045 16.6182 17.5773L13.3864 15.0682C12.4909 15.6682 11.3455 16.0227 10 16.0227C7.39545 16.0227 5.19091 14.2636 4.40455 11.9H1.06364V14.4909C2.70909 17.7591 6.09091 20 10 20Z" fill="#34A853"/>

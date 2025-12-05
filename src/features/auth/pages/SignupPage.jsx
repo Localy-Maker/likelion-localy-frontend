@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import Logo from "@/shared/components/Logo";
 import * as S from "../styles/SignupPage.styles";
-import { sendVerificationCode, verifyCode, signup } from "../api/authApi";
 
 /**
  * 회원가입 페이지 컴포넌트
@@ -27,11 +26,7 @@ export default function SignupPage() {
   // 인증번호 타이머 관련 상태
   const [timer, setTimer] = useState(0); // 타이머 초 단위 (5분 = 300초)
   const [isTimerRunning, setIsTimerRunning] = useState(false); // 타이머 실행 여부
-  const [isVerificationCodeVerified, setIsVerificationCodeVerified] = useState(false); // 인증번호 확인 완료 여부
-  
-  // API 호출 상태
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [correctVerificationCode, setCorrectVerificationCode] = useState(""); // 서버에서 받은 올바른 인증번호
 
   // ========== 검증 함수 ==========
   /**
@@ -74,156 +69,79 @@ export default function SignupPage() {
   const showConfirmPasswordError = confirmPassword.trim() !== "" && password !== confirmPassword; // 에러 메시지 표시 여부
 
   // 인증번호 검증
-  const isVerificationCodeValid = isVerificationCodeVerified;
+  const isVerificationCodeValid = 
+    verificationCode.trim() !== "" && 
+    correctVerificationCode !== "" && 
+    verificationCode.trim() === correctVerificationCode;
   const showVerificationCodeError = 
     verificationCode.trim() !== "" && 
-    !isVerificationCodeVerified &&
-    !isTimerRunning; // 에러 메시지 표시 여부
+    correctVerificationCode !== "" && 
+    verificationCode.trim() !== correctVerificationCode; // 에러 메시지 표시 여부
 
   // ========== 완료 버튼 활성화 조건 ==========
   // 모든 필드가 올바르게 입력되었을 때만 버튼 활성화
   const isButtonEnabled =
     isEmailValid && // 이메일 형식 올바름
-    isVerificationCodeValid && // 인증번호 확인 완료
+    isVerificationCodeValid && // 인증번호 일치
     isPasswordValid && // 비밀번호 형식 올바름
     isConfirmPasswordValid && // 비밀번호 확인 일치
-    nickname.trim() !== "" && // 닉네임 입력됨
-    !isLoading; // 로딩 중이 아닐 때
+    nickname.trim() !== ""; // 닉네임 입력됨
 
   // ========== 이벤트 핸들러 ==========
   /**
    * 회원가입 폼 제출 핸들러
    * @param {Event} e - 폼 제출 이벤트
    */
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     // 버튼이 비활성화되어 있으면 제출하지 않음
-    if (!isButtonEnabled || isLoading) return;
+    if (!isButtonEnabled) return;
     
-    setIsLoading(true);
-    setError("");
+    // TODO: 실제 회원가입 API 호출 로직 구현 필요
+    console.log("Signup:", {
+      email,
+      verificationCode,
+      password,
+      confirmPassword,
+      nickname,
+    });
     
-    try {
-      await signup({
-        email: email.trim(),
-        password,
-        confirmPassword,
-        nickname: nickname.trim(),
-      });
-      
-      // 회원가입 성공 시 메인 페이지로 이동
-      navigate("/main");
-    } catch (err) {
-      // 에러 응답 구조: BaseResponse 또는 CustomException
-      const errorMessage = err.response?.data?.message || err.message || "회원가입에 실패했습니다.";
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    // 회원가입 완료 후 온보딩 페이지로 이동
+    navigate("/onboarding");
   };
 
   /**
    * 이메일 인증 요청 핸들러
-   * 인증번호를 받아오고 expiresIn 값에 따라 타이머를 시작합니다.
+   * 인증번호를 받아오고 5분 타이머를 시작합니다.
    */
-  const handleVerifyEmail = async () => {
-    if (!isEmailValid || isLoading) return;
+  const handleVerifyEmail = () => {
+    // TODO: 실제 이메일 인증 API 호출 로직 구현 필요
+    // 현재는 개발용으로 랜덤 인증번호를 생성합니다.
+    console.log("Verify email:", email);
     
-    setIsLoading(true);
-    setError("");
+    // 임시로 6자리 랜덤 인증번호 생성 (실제로는 서버에서 받아와야 함)
+    const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+    setCorrectVerificationCode(generatedCode);
+    console.log("Generated verification code:", generatedCode); // 개발용 - 실제 배포 시 제거 필요
     
-    try {
-      const result = await sendVerificationCode(email.trim());
-      
-      // 이메일 인증 상태 활성화
-      setIsEmailVerified(true);
-      // expiresIn 값에 따라 타이머 시작 (기본값 300초)
-      const expiresIn = result.expiresIn || 300;
-      setTimer(expiresIn);
-      setIsTimerRunning(true);
-      setIsVerificationCodeVerified(false);
-      setVerificationCode("");
-    } catch (err) {
-      // 에러 응답 구조 확인 및 로깅
-      console.error("이메일 인증 요청 실패:", err);
-      console.error("에러 응답:", err.response?.data);
-      console.error("에러 상태 코드:", err.response?.status);
-      
-      // 에러 메시지 추출
-      let errorMessage = "인증번호 발송에 실패했습니다.";
-      
-      if (err.response) {
-        // 서버 응답이 있는 경우
-        const status = err.response.status;
-        const data = err.response.data;
-        
-        if (status === 500) {
-          errorMessage = data?.message || "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-        } else if (status === 400) {
-          errorMessage = data?.message || "잘못된 요청입니다. 이메일을 확인해주세요.";
-        } else if (status === 409) {
-          errorMessage = data?.message || "이미 사용 중인 이메일입니다.";
-        } else {
-          errorMessage = data?.message || `요청 처리 중 오류가 발생했습니다. (${status})`;
-        }
-      } else if (err.request) {
-        // 요청은 보냈지만 응답을 받지 못한 경우
-        errorMessage = "서버에 연결할 수 없습니다. 네트워크를 확인해주세요.";
-      } else {
-        // 요청 설정 중 오류가 발생한 경우
-        errorMessage = err.message || "요청 처리 중 오류가 발생했습니다.";
-      }
-      
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    // 이메일 인증 상태 활성화
+    setIsEmailVerified(true);
+    // 5분 타이머 시작 (300초)
+    setTimer(300);
+    setIsTimerRunning(true);
   };
-  
-  /**
-   * 인증번호 확인 핸들러
-   */
-  const handleVerifyCode = useCallback(async () => {
-    if (verificationCode.trim() === "" || isLoading) return;
-    
-    setIsLoading(true);
-    setError("");
-    
-    try {
-      const result = await verifyCode(email.trim(), verificationCode.trim());
-      
-      // 인증 성공
-      if (result.verified) {
-        setIsVerificationCodeVerified(true);
-        setIsTimerRunning(false);
-        setTimer(0);
-      } else {
-        setError("인증번호가 일치하지 않습니다.");
-        setIsVerificationCodeVerified(false);
-      }
-    } catch (err) {
-      // 에러 응답 구조: { status, code, message }
-      const errorMessage = err.response?.data?.message || "인증번호가 일치하지 않습니다.";
-      setError(errorMessage);
-      setIsVerificationCodeVerified(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [verificationCode, email, isLoading]);
 
-  // ========== 인증번호 자동 확인 ==========
+  // ========== 타이머 관련 로직 ==========
   /**
-   * 인증번호 입력 시 자동으로 확인 요청
+   * 올바른 인증번호 입력 시 타이머 초기화
+   * 인증번호가 올바르게 입력되면 타이머를 중지하고 초기화합니다.
    */
   useEffect(() => {
-    if (verificationCode.trim().length === 6 && isEmailVerified && !isVerificationCodeVerified && !isLoading) {
-      const timer = setTimeout(() => {
-        handleVerifyCode();
-      }, 500); // 0.5초 후 자동 확인
-      
-      return () => clearTimeout(timer);
+    if (isVerificationCodeValid) {
+      setIsTimerRunning(false);
+      setTimer(0);
     }
-  }, [verificationCode, handleVerifyCode, isEmailVerified, isVerificationCodeVerified, isLoading]);
+  }, [isVerificationCodeValid]);
 
   /**
    * 타이머 카운트다운 효과
@@ -326,9 +244,8 @@ export default function SignupPage() {
             placeholder="인증번호 입력"
             value={verificationCode}
             onChange={(e) => setVerificationCode(e.target.value)}
-            disabled={!isEmailVerified || isLoading}
+            disabled={!isEmailVerified}
             $hasError={showVerificationCodeError}
-            maxLength={6}
           />
           {/* 인증번호가 올바르면 초록색 체크 표시, 아니면 타이머 표시 */}
           {isVerificationCodeValid ? (
@@ -351,9 +268,6 @@ export default function SignupPage() {
             <S.ErrorMessage>인증번호가 일치하지 않습니다.</S.ErrorMessage>
           )}
         </S.InputWrapper>
-        
-        {/* 에러 메시지 */}
-        {error && <S.ErrorMessage style={{ marginTop: "8px", textAlign: "center" }}>{error}</S.ErrorMessage>}
 
         {/* 비밀번호 입력 필드 */}
         <S.InputWrapper>
@@ -451,7 +365,7 @@ export default function SignupPage() {
 
       {/* 회원가입 완료 버튼 */}
       <S.SubmitButton type="submit" disabled={!isButtonEnabled} $isEnabled={isButtonEnabled} onClick={handleSubmit}>
-        {isLoading ? "처리 중..." : "완료"}
+        완료
       </S.SubmitButton>
     </S.Container>
   );
