@@ -23,15 +23,13 @@ export default function LoginPage() {
         setIsLoading(true);
         setError("");
         const result = await googleLogin(response.credential);
-        // 신규 사용자인지 확인 (isNewUser, needsOnboarding, isFirstLogin 등)
-        // 백엔드 응답에 따라 필드명이 다를 수 있음
-        const isNewUser = result.isNewUser || result.needsOnboarding || result.isFirstLogin || false;
-        
-        if (isNewUser) {
-          // 신규 사용자는 온보딩으로 이동
+        // 백엔드에서 onboardingCompleted 필드로 온보딩 완료 여부 확인
+        // onboardingCompleted가 false이면 온보딩으로, true이면 메인으로 이동
+        if (result.onboardingCompleted === false) {
+          // 온보딩 미완료 사용자는 온보딩으로 이동
           navigate("/onboarding");
         } else {
-          // 기존 사용자는 메인으로 이동
+          // 온보딩 완료 사용자는 메인으로 이동
           navigate("/main");
         }
       } catch (err) {
