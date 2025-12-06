@@ -844,12 +844,8 @@ export default function DashboardPage() {
           selectedValue={selectedMode === "year" ? currentYear : currentMonth}
           onSelect={handleDateSelect}
           triggerRef={dateFieldRef}
-          autoClose={selectedMode === "month"} // 월 선택 시에만 자동 닫기
-        />
-
-<<<<<<< HEAD
-      {/* 필터 Pills */}
-      <S.PillsContainer>
+        autoClose={selectedMode === "month"} // 월 선택 시에만 자동 닫기
+      />
         <S.Pill 
           $isActive={selectedPeriod === "Daily"} 
           onClick={() => setSelectedPeriod("Daily")}
@@ -1339,10 +1335,7 @@ export default function DashboardPage() {
       />
 
     </S.Container>
-=======
-      </S.Container>
-      <BottomNavigation />
+    <BottomNavigation />
     </>
->>>>>>> upstream/main
   );
 }
