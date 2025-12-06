@@ -8,7 +8,7 @@ import { colors } from "@/styles/colors";
  * @param {string} className - 추가 CSS 클래스
  */
 const BookmarkIcon = ({
-  stroke = "black",
+  stroke = "none",
   color = colors.blue[50],
   size = 24,
   className,

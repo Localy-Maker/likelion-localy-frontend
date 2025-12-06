@@ -47,10 +47,10 @@ const Navigate = () => {
   const location = useLocation();
 
   const NAV_PATHS = {
-    home: "/",
+    home: "/main",
     message: "/chat",
     folder: "/local",
-    clipboard: "/feedback",
+    clipboard: "/dashboard",
     user: "/mypage",
   };
 

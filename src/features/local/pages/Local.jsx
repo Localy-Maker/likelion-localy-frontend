@@ -25,7 +25,7 @@ export default function LocalPage() {
   };
 
   const handleLeftClick = () => {
-    navigate("/");
+    navigate("/main");
   };
 
   const handleMissionCardClick = () => {

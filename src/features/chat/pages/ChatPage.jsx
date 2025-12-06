@@ -15,7 +15,7 @@ import webSocketClient from "@/features/chat/utils/webSocketClient";
 const PageWrapper = styled.div`
   position: relative;
   width: 100%;
-  max-width: 375px;
+  max-width: 800px;
   height: 100vh;
   margin: 0 auto;
   overflow: hidden;
@@ -461,116 +461,120 @@ const ChatPage = () => {
   };
 
   return (
-    <PageWrapper>
-      <ChatContainer>
-        <Header
-          leftIcon={<ChevronLeftIcon />}
-          onLeftClick={onBack}
-          text="Localy"
-          rightIcon={<MenuIcon />}
-          onRightClick={toggleSidebar}
-        />
+    <>
 
-        <ChatContent ref={chatContentRef}>
-          {messages.map((message, index) => (
-            <div key={message.id}>
-              {message.timestamp && <Timestamp>{message.timestamp}</Timestamp>}
+      <PageWrapper>
 
-              {message.type === "bot" ? (
-                <>
-                  {message.showDivider && index > 0 && <Divider />}
-                  <ChatMessage>
-                    <BotMessage>
-                      {message.text.split("\n").map((line, i) => (
-                        <span key={i}>
-                          {line}
-                          {i < message.text.split("\n").length - 1 && <br />}
-                        </span>
-                      ))}
-                    </BotMessage>
-                  </ChatMessage>
-                </>
-              ) : (
-                <UserChatWrapper
-                  $isFirstInGroup={
-                    index === 0 || messages[index - 1]?.type !== "user"
-                  }
-                  $isLastInGroup={
-                    index === messages.length - 1 ||
-                    messages[index + 1]?.type !== "user"
-                  }
-                >
-                  {message.texts.map((text, i) => {
-                    const position = getMessagePosition(
-                      messages,
-                      index,
-                      i,
-                      message.texts.length
-                    );
-                    return (
-                      <MessageBubble key={i} $position={position}>
-                        {text}
-                      </MessageBubble>
-                    );
-                  })}
-                </UserChatWrapper>
-              )}
-            </div>
-          ))}
-        </ChatContent>
+        <ChatContainer>
+          <Header
+            leftIcon={<ChevronLeftIcon />}
+            onLeftClick={onBack}
+            text="Localy"
+            rightIcon={<MenuIcon />}
+            onRightClick={toggleSidebar}
+          />
 
-        <FooterInput>
-          <InputWrapper>
-            <Input
-              placeholder="당신의 이야기를 들려주세요."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-            />
-            <MicButton>
-              <MicIcon color="#838383" size={24} />
-            </MicButton>
-            <SendButton onClick={handleSend} disabled={!inputValue.trim()}>
-              <ArrowUpIcon color="#5482FF" size={24} />
-            </SendButton>
-          </InputWrapper>
-        </FooterInput>
-      </ChatContainer>
+          <ChatContent ref={chatContentRef}>
+            {messages.map((message, index) => (
+              <div key={message.id}>
+                {message.timestamp && <Timestamp>{message.timestamp}</Timestamp>}
 
-      {/* Sidebar */}
-      <Dimmed $isOpen={sidebarOpen} onClick={toggleSidebar} />
-      <Sidebar $isOpen={sidebarOpen}>
-        <SidebarItem $marginBottom="27px" onClick={handleNewChat}>
-          <SidebarIconWrapper>
-            <PencilIcon color="#0D0D0D" size={20} />
-          </SidebarIconWrapper>
-          <SidebarText>새로운 채팅</SidebarText>
-        </SidebarItem>
+                {message.type === "bot" ? (
+                  <>
+                    {message.showDivider && index > 0 && <Divider />}
+                    <ChatMessage>
+                      <BotMessage>
+                        {message.text.split("\n").map((line, i) => (
+                          <span key={i}>
+                            {line}
+                            {i < message.text.split("\n").length - 1 && <br />}
+                          </span>
+                        ))}
+                      </BotMessage>
+                    </ChatMessage>
+                  </>
+                ) : (
+                  <UserChatWrapper
+                    $isFirstInGroup={
+                      index === 0 || messages[index - 1]?.type !== "user"
+                    }
+                    $isLastInGroup={
+                      index === messages.length - 1 ||
+                      messages[index + 1]?.type !== "user"
+                    }
+                  >
+                    {message.texts.map((text, i) => {
+                      const position = getMessagePosition(
+                        messages,
+                        index,
+                        i,
+                        message.texts.length
+                      );
+                      return (
+                        <MessageBubble key={i} $position={position}>
+                          {text}
+                        </MessageBubble>
+                      );
+                    })}
+                  </UserChatWrapper>
+                )}
+              </div>
+            ))}
+          </ChatContent>
 
-        <SidebarText
-          $bold
-          $size="14px"
-          $lineHeight="20px"
-          style={{ display: "block", marginBottom: "10px" }}
-        >
-          최근
-        </SidebarText>
+          <FooterInput>
+            <InputWrapper>
+              <Input
+                placeholder="당신의 이야기를 들려주세요."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+              />
+              <MicButton>
+                <MicIcon color="#838383" size={24} />
+              </MicButton>
+              <SendButton onClick={handleSend} disabled={!inputValue.trim()}>
+                <ArrowUpIcon color="#5482FF" size={24} />
+              </SendButton>
+            </InputWrapper>
+          </FooterInput>
+        </ChatContainer>
 
-        {chatHistories.map((chat) => (
-          <SidebarItem
-            key={chat.id}
-            $marginBottom="10px"
-            onClick={() => handleSelectChat(chat.id)}
-          >
-            <SidebarText
-              $color={currentChatId === chat.id ? "#5482FF" : "#0D0D0D"}
-            >
-              {chat.title}
-            </SidebarText>
+        {/* Sidebar */}
+        <Dimmed $isOpen={sidebarOpen} onClick={toggleSidebar} />
+        <Sidebar $isOpen={sidebarOpen}>
+          <SidebarItem $marginBottom="27px" onClick={handleNewChat}>
+            <SidebarIconWrapper>
+              <PencilIcon color="#0D0D0D" size={20} />
+            </SidebarIconWrapper>
+            <SidebarText>새로운 채팅</SidebarText>
           </SidebarItem>
-        ))}
-      </Sidebar>
-    </PageWrapper>
+
+          <SidebarText
+            $bold
+            $size="14px"
+            $lineHeight="20px"
+            style={{ display: "block", marginBottom: "10px" }}
+          >
+            최근
+          </SidebarText>
+
+          {chatHistories.map((chat) => (
+            <SidebarItem
+              key={chat.id}
+              $marginBottom="10px"
+              onClick={() => handleSelectChat(chat.id)}
+            >
+              <SidebarText
+                $color={currentChatId === chat.id ? "#5482FF" : "#0D0D0D"}
+              >
+                {chat.title}
+              </SidebarText>
+            </SidebarItem>
+          ))}
+        </Sidebar>
+      </PageWrapper>
+    </>
   );
 };
 

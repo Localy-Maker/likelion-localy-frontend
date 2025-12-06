@@ -21,7 +21,6 @@ import ChallengePage from "@/features/local/pages/Challenge";
 import SpendPointsPage from "@/features/local/pages/SpendPoints";
 import BookmarkPage from "@/features/local/pages/Bookmark";
 import NotificationPage from "@/features/notification/pages/NotificationPage";
-import LoadingPage from "@/features/loading/pages/LoadingPage";
 
 function App() {
   return (
