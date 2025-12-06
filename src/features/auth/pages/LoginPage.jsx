@@ -22,8 +22,18 @@ export default function LoginPage() {
       try {
         setIsLoading(true);
         setError("");
-        await googleLogin(response.credential);
-        navigate("/main");
+        const result = await googleLogin(response.credential);
+        // 신규 사용자인지 확인 (isNewUser, needsOnboarding, isFirstLogin 등)
+        // 백엔드 응답에 따라 필드명이 다를 수 있음
+        const isNewUser = result.isNewUser || result.needsOnboarding || result.isFirstLogin || false;
+        
+        if (isNewUser) {
+          // 신규 사용자는 온보딩으로 이동
+          navigate("/onboarding");
+        } else {
+          // 기존 사용자는 메인으로 이동
+          navigate("/main");
+        }
       } catch (err) {
         setError(err.response?.data?.message || "Google 로그인에 실패했습니다.");
       } finally {
