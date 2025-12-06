@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { deleteAccount } from "../api/mypageApi";
+import { getMyPage, deleteAccount } from "../api/mypageApi";
 import { logout } from "@/features/auth/api/authApi";
 import LogoutModal from "../components/LogoutModal";
 import * as S from "../styles/MyPage.styles";
@@ -19,32 +19,11 @@ export default function MyPage() {
     const fetchMyPage = async () => {
       try {
         setIsLoading(true);
+        setError("");
         
-        // 예시 데이터 (구조 확인용)
-        const exampleData = {
-          data: {
-            status: 200,
-            message: "마이페이지 조회 성공",
-            userId: 1,
-            email: "likelion123@naver.com",
-            name: "김멋사",
-            nickname: "김멋사",
-            profileImage: null,
-            createdAt: "2024-01-01T00:00:00Z",
-            updatedAt: "2024-01-01T00:00:00Z"
-          }
-        };
-        
-        // 실제 API 호출 대신 예시 데이터 사용
-        // const data = await getMyPage();
-        // const responseData = data?.data || data;
-        const responseData = exampleData?.data || exampleData;
+        const data = await getMyPage();
+        const responseData = data?.data || data;
         setUserData(responseData);
-        
-        // 실제 API 호출 (주석 해제하여 사용)
-        // const data = await getMyPage();
-        // const responseData = data?.data || data;
-        // setUserData(responseData);
       } catch (err) {
         setError(err.response?.data?.message || "마이페이지 정보를 불러오는데 실패했습니다.");
       } finally {
