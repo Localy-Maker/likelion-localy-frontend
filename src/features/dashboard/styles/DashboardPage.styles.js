@@ -126,7 +126,7 @@ export const PillsContainer = styled.div`
   width: 223px;
   height: 29px;
   left: 16px;
-  top: 120px;
+  top: 116px; /* 120px -> 116px로 변경하여 위쪽 여백을 아래쪽 여백(16px)과 동일하게 */
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -483,7 +483,7 @@ export const TabIcon = styled.button`
 export const MonthChartSection = styled.div`
   box-sizing: border-box;
   position: absolute;
-  width: 343px;
+  width: 351px; /* 343px -> 351px로 증가하여 일요일 날짜가 잘리지 않도록 */
   height: 323px;
   left: 16px;
   top: 165px;

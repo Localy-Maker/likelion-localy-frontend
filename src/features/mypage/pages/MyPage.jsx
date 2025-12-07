@@ -4,6 +4,12 @@ import { getMyPage, deleteAccount } from "../api/mypageApi";
 import { logout } from "@/features/auth/api/authApi";
 import LogoutModal from "../components/LogoutModal";
 import * as S from "../styles/MyPage.styles";
+import Header from "@/shared/components/Header/Header";
+import BellIcon from "@/shared/components/icons/BellIcon";
+import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
+import { PageWrapper, ScrollableContent } from "@/features/main/styles/MainPage.styles";
+import notificationWebSocketClient from "@/features/notification/utils/notificationWebSocketClient";
+import { getCurrentUserId } from "@/shared/utils/jwtUtils";
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -14,6 +20,7 @@ export default function MyPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const fetchMyPage = async () => {
@@ -32,6 +39,36 @@ export default function MyPage() {
     };
 
     fetchMyPage();
+  }, []);
+
+  // WebSocket connection for unread notification count
+  useEffect(() => {
+    const userId = getCurrentUserId();
+
+    if (!userId) {
+      console.warn("User ID not found, cannot connect to notification WebSocket");
+      return;
+    }
+
+    // WebSocket 연결 및 읽지 않은 알림 개수 구독
+    notificationWebSocketClient.connect(
+      userId,
+      (unreadCount) => {
+        // Dev 환경에서만 로깅
+        if (import.meta.env.DEV) {
+          console.log("🔔 Unread notification count updated:", unreadCount);
+        }
+        setUnreadCount(unreadCount);
+      },
+      (error) => {
+        console.error("Notification WebSocket error:", error);
+      }
+    );
+
+    // Cleanup: 컴포넌트 언마운트 시 WebSocket 연결 해제
+    return () => {
+      notificationWebSocketClient.disconnect();
+    };
   }, []);
 
   /**
@@ -88,51 +125,58 @@ export default function MyPage() {
     }
   };
 
+  const handleNotificationClick = () => navigate("/notifications");
+
   if (isLoading) {
     return (
-      <S.Container>
-        <S.Header>
-          <S.BackButton type="button" onClick={() => navigate("/main")}>
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </S.BackButton>
-          <S.HeaderTitle>마이 페이지</S.HeaderTitle>
-          <S.HeaderSpacer />
-        </S.Header>
-        <div style={{ paddingTop: "100px", textAlign: "center" }}>로딩 중...</div>
-      </S.Container>
+      <PageWrapper>
+        <Header
+          leftIcon={null}
+          rightIcon={<BellIcon color="#000" size={24} unreadCount={unreadCount} />}
+          text="Localy"
+          onLeftClick={null}
+          onRightClick={handleNotificationClick}
+          showBorder={false}
+        />
+        <ScrollableContent>
+          <div style={{ paddingTop: "100px", textAlign: "center" }}>로딩 중...</div>
+        </ScrollableContent>
+        <BottomNavigation />
+      </PageWrapper>
     );
   }
 
   if (error) {
     return (
-      <S.Container>
-        <S.Header>
-          <S.BackButton type="button" onClick={() => navigate("/main")}>
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </S.BackButton>
-          <S.HeaderTitle>마이 페이지</S.HeaderTitle>
-          <S.HeaderSpacer />
-        </S.Header>
-        <div style={{ paddingTop: "100px", textAlign: "center", color: "#C53929" }}>{error}</div>
-      </S.Container>
+      <PageWrapper>
+        <Header
+          leftIcon={null}
+          rightIcon={<BellIcon color="#000" size={24} unreadCount={unreadCount} />}
+          text="Localy"
+          onLeftClick={null}
+          onRightClick={handleNotificationClick}
+          showBorder={false}
+        />
+        <ScrollableContent>
+          <div style={{ paddingTop: "100px", textAlign: "center", color: "#C53929" }}>{error}</div>
+        </ScrollableContent>
+        <BottomNavigation />
+      </PageWrapper>
     );
   }
 
   return (
-    <S.Container>
-      <S.Header>
-        <S.BackButton type="button" onClick={() => navigate("/main")}>
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </S.BackButton>
-        <S.HeaderTitle>마이 페이지</S.HeaderTitle>
-        <S.HeaderSpacer />
-      </S.Header>
+    <PageWrapper>
+      <Header
+        leftIcon={null}
+        rightIcon={<BellIcon color="#000" size={24} unreadCount={unreadCount} />}
+        text="Localy"
+        onLeftClick={null}
+        onRightClick={handleNotificationClick}
+        showBorder={false}
+      />
+      <ScrollableContent>
+      <S.Container>
 
       <S.ProfileCard>
         <S.ProfileIcon>
@@ -193,7 +237,10 @@ export default function MyPage() {
         confirmText="확인"
         cancelText="닫기"
       />
-    </S.Container>
+      </S.Container>
+      </ScrollableContent>
+      <BottomNavigation />
+    </PageWrapper>
   );
 }
 

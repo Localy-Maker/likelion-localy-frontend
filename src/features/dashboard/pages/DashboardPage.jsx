@@ -8,6 +8,9 @@ import BellIcon from "@/shared/components/icons/BellIcon";
 import { getDailyFeedback, getWeekFeedback, getMonthFeedback } from "../api/dashboardApi";
 import { renderEmotionCharacter } from "@/shared/utils/emotionCharacters";
 import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
+import { PageWrapper, ScrollableContent } from "@/features/main/styles/MainPage.styles";
+import notificationWebSocketClient from "@/features/notification/utils/notificationWebSocketClient";
+import { getCurrentUserId } from "@/shared/utils/jwtUtils";
 
 export default function DashboardPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("Daily");
@@ -27,6 +30,9 @@ export default function DashboardPage() {
 
   // Month 피드백 데이터 상태
   const [monthFeedbackData, setMonthFeedbackData] = useState(null);
+
+  // 알림 관련 상태
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // 년도 옵션 생성 (현재 년도 기준 ±5년)
   const yearOptions = [];
@@ -165,6 +171,36 @@ export default function DashboardPage() {
       fetchMonthFeedback(currentYear, currentMonth);
     }
   }, [selectedPeriod, currentYear, currentMonth, fetchDailyFeedback, fetchWeekFeedback, fetchMonthFeedback]);
+
+  // WebSocket connection for unread notification count
+  useEffect(() => {
+    const userId = getCurrentUserId();
+
+    if (!userId) {
+      console.warn("User ID not found, cannot connect to notification WebSocket");
+      return;
+    }
+
+    // WebSocket 연결 및 읽지 않은 알림 개수 구독
+    notificationWebSocketClient.connect(
+      userId,
+      (unreadCount) => {
+        // Dev 환경에서만 로깅
+        if (import.meta.env.DEV) {
+          console.log("🔔 Unread notification count updated:", unreadCount);
+        }
+        setUnreadCount(unreadCount);
+      },
+      (error) => {
+        console.error("Notification WebSocket error:", error);
+      }
+    );
+
+    // Cleanup: 컴포넌트 언마운트 시 WebSocket 연결 해제
+    return () => {
+      notificationWebSocketClient.disconnect();
+    };
+  }, []);
 
   // Month 피드백 데이터를 캘린더 형식으로 변환
   const monthCalendarDataMap = monthFeedbackData
@@ -330,35 +366,21 @@ export default function DashboardPage() {
     : null;
   const todayEmotion = getEmotionByValue(todayAverageValue);
 
-  // Badge를 포함한 알림 아이콘 래퍼
-  const NotificationIconWithBadge = () => (
-    <div style={{ position: 'relative', display: 'inline-block', width: '24px', height: '24px' }}>
-      <BellIcon color="black" size={20} />
-      <S.Badge style={{ left: '12px', top: '-2px' }}>5</S.Badge>
-    </div>
-  );
-
   const navigate = useNavigate();
-  const handleleftClick = () => {
-    navigate(-1);
-  };
+  const handleNotificationClick = () => navigate("/notifications");
 
   return (
-    <><Header
-      text="Localy"
-      rightIcon={<NotificationIconWithBadge />}
-      onRightClick={() => {
-        // 알림 클릭 핸들러 (필요시 추가)
-
-      }}
-      onLeftClick={handleleftClick}
-    />
+    <PageWrapper>
+      <Header
+        leftIcon={null}
+        rightIcon={<BellIcon color="#000" size={24} unreadCount={unreadCount} />}
+        text="Localy"
+        onLeftClick={null}
+        onRightClick={handleNotificationClick}
+        showBorder={false}
+      />
+      <ScrollableContent>
       <S.Container>
-        {/* 헤더 */}
-        <div style={{ position: 'absolute', width: '375px', height: '56px', left: '0px', top: '44px' }}>
-
-        </div>
-
         {/* 필터 Pills */}
         <S.PillsContainer>
           <S.Pill
@@ -1327,8 +1349,9 @@ export default function DashboardPage() {
         autoClose={selectedMode === "month"} // 월 선택 시에만 자동 닫기
       />
 
-    </S.Container>
-    <BottomNavigation />
-    </>
+      </S.Container>
+      </ScrollableContent>
+      <BottomNavigation />
+    </PageWrapper>
   );
 }
