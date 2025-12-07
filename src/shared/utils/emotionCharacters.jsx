@@ -3,6 +3,11 @@
  * DashboardPage와 LoadingPage에서 공유
  */
 export const renderEmotionCharacter = (character) => {
+  // character가 null이거나 undefined이면 null 반환
+  if (!character) {
+    return null;
+  }
+  
   switch (character) {
     case "depression":
       return (

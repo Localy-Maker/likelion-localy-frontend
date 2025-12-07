@@ -445,6 +445,11 @@ export default function DashboardPage() {
               }
 
               const emotion = getEmotionByValue(entry.value);
+              
+              // emotion이 null이면 렌더링하지 않음
+              if (!emotion) {
+                return null;
+              }
 
               // generateCalendarData()가 이미 올바른 순서로 배열을 반환하므로
               // index를 그대로 사용하여 위치 계산
@@ -911,6 +916,11 @@ export default function DashboardPage() {
             }
             
             const emotion = getEmotionByValue(entry.value);
+            
+            // emotion이 null이면 렌더링하지 않음
+            if (!emotion) {
+              return null;
+            }
             
             // generateCalendarData()가 이미 올바른 순서로 배열을 반환하므로
             // index를 그대로 사용하여 위치 계산
