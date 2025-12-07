@@ -445,6 +445,11 @@ export default function DashboardPage() {
               }
 
               const emotion = getEmotionByValue(entry.value);
+              
+              // emotion이 null이면 렌더링하지 않음
+              if (!emotion) {
+                return null;
+              }
 
               // generateCalendarData()가 이미 올바른 순서로 배열을 반환하므로
               // index를 그대로 사용하여 위치 계산
@@ -683,7 +688,7 @@ export default function DashboardPage() {
               )}
 
               {/* Daily 차트 - Line Chart */}
-              {selectedPeriod === "Daily" && (
+              {selectedPeriod === "Daily" && dailyChartData.length > 0 && (
                 <S.ChartLine>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={dailyChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
@@ -711,7 +716,7 @@ export default function DashboardPage() {
               )}
 
               {/* Week 차트 - Bar Chart */}
-              {selectedPeriod === "Week" && (
+              {selectedPeriod === "Week" && weekChartData.length > 0 && (
                 <>
                   {/* Y축 라벨 */}
                   <S.YAxisLabel $top={60}>100</S.YAxisLabel>
@@ -767,7 +772,8 @@ export default function DashboardPage() {
 
                   {/* 막대 위 퍼센트 표시 */}
                   {weekChartData.map((entry, index) => {
-                    if (entry.value === 0) return null; // 값이 0이면 표시하지 않음
+                    // 값이 0 이하이거나 null/undefined이면 표시하지 않음
+                    if (!entry || entry.value == null || entry.value <= 0) return null;
                     const barHeight = (entry.value / 100) * 180; // 180px is the chart height (240 - 60)
                     const barTop = 240 - barHeight;
                     // 요일 라벨 위치에 맞춰 퍼센트 라벨 위치 계산 (막대 중심에 맞춤)
@@ -823,7 +829,7 @@ export default function DashboardPage() {
           <S.MonthListSection>
             <S.MonthListTitle>이번 달 감정 별 횟수</S.MonthListTitle>
             <S.MonthEmotionList>
-              {monthEmotionCounts.map((item, index) => (
+              {monthEmotionCounts.filter(item => item && item.emotion).map((item, index) => (
                 <S.MonthEmotionItem key={`month-emotion-${index}`}>
                   <S.MonthEmotionCharacter $width={index === 1 ? "19.91" : "32"} $height={index === 1 ? "45.96" : "48"}>
                     {renderEmotionCharacter(item.emotion)}
@@ -911,6 +917,11 @@ export default function DashboardPage() {
             }
             
             const emotion = getEmotionByValue(entry.value);
+            
+            // emotion이 null이면 렌더링하지 않음
+            if (!emotion) {
+              return null;
+            }
             
             // generateCalendarData()가 이미 올바른 순서로 배열을 반환하므로
             // index를 그대로 사용하여 위치 계산
@@ -1233,7 +1244,8 @@ export default function DashboardPage() {
 
               {/* 막대 위 퍼센트 표시 */}
               {weekChartData.map((entry, index) => {
-                if (entry.value === 0) return null; // 값이 0이면 표시하지 않음
+                // 값이 0 이하이거나 null/undefined이면 표시하지 않음
+                if (!entry || entry.value == null || entry.value <= 0) return null;
                 const barHeight = (entry.value / 100) * 180; // 180px is the chart height (240 - 60)
                 const barTop = 240 - barHeight;
                 // 요일 라벨 위치에 맞춰 퍼센트 라벨 위치 계산 (막대 중심에 맞춤)
@@ -1289,7 +1301,7 @@ export default function DashboardPage() {
         <S.MonthListSection>
           <S.MonthListTitle>이번 달 감정 별 횟수</S.MonthListTitle>
           <S.MonthEmotionList>
-            {monthEmotionCounts.map((item, index) => (
+            {monthEmotionCounts.filter(item => item && item.emotion).map((item, index) => (
               <S.MonthEmotionItem key={`month-emotion-${index}`}>
                 <S.MonthEmotionCharacter $width={index === 1 ? "19.91" : "32"} $height={index === 1 ? "45.96" : "48"}>
                   {renderEmotionCharacter(item.emotion)}
