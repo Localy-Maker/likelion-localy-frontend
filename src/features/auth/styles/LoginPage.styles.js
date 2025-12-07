@@ -17,7 +17,7 @@ export const LogoWrapper = styled.div`
 `;
 
 export const Title = styled.h1`
-  ${font.bold28}
+  ${font.bold24}
   color: #0D0D0D;
   margin-bottom: 20px;
   text-align: center;
@@ -31,7 +31,7 @@ export const SignupLink = styled.div`
   
   a {
     color: ${colors.blue[100]};
-    text-decoration: none;
+    text-decoration: underline;
     margin-left: 4px;
   }
 `;
@@ -180,7 +180,7 @@ export const FindPasswordLink = styled.div`
   
   a {
     color: ${colors.blue[100]};
-    text-decoration: none;
+    text-decoration: underline;
     margin-left: 4px;
   }
 `;

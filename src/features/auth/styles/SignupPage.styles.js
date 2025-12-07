@@ -99,6 +99,7 @@ export const InputWrapper = styled.div`
   flex: 1;
   margin-bottom: 0;
   margin-top: 0;
+  min-height: 39px; /* Input 높이만큼 최소 높이 설정 */
   
   /* 비밀번호 입력 필드 (Form 내에서 2번째 InputWrapper) 위에만 여백 */
   &:nth-of-type(2) {

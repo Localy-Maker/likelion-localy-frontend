@@ -347,9 +347,12 @@ export default function SignupPage() {
           {showPasswordError ? (
             <S.ErrorMessage>비밀번호 형식이 올바르지 않습니다.</S.ErrorMessage>
           ) : (
-            <S.PasswordHint>
-              영문 소문자 최소 8 ~ 최대 16자리, 특수문자포함 ( ! # $ % & * @ ^ )
-            </S.PasswordHint>
+            // 비밀번호를 입력했지만 조건을 만족하지 않을 때만 힌트 표시 (조건 만족 시 사라짐)
+            password.trim() !== "" && !isPasswordValid && (
+              <S.PasswordHint>
+                영문 소문자 최소 8 ~ 최대 16자리, 특수문자포함 ( ! # $ % & * @ ^ )
+              </S.PasswordHint>
+            )
           )}
         </S.InputWrapper>
 

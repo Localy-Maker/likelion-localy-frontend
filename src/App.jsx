@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 import { GlobalStyle } from "@/styles/global-style";
 import GlobalLayout from "@/shared/components/global-layout";
 import { LanguageProvider } from "@/contexts/LanguageContext.jsx";
@@ -13,6 +14,7 @@ import EditMyInfoPage from "@/features/mypage/pages/EditMyInfoPage";
 import PremiumPlanPage from "@/features/premium/pages/PremiumPlanPage";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import LoadingPage from "@/features/loading/pages/LoadingPage";
+import SplashPage from "@/features/loading/pages/SplashPage";
 import ChatPage from "@/features/chat/pages/ChatPage";
 import LocalPage from "@/features/local/pages/Local";
 import LocalDetailPage from "@/features/local/pages/LocalDetail";
@@ -22,6 +24,31 @@ import SpendPointsPage from "@/features/local/pages/SpendPoints";
 import BookmarkPage from "@/features/local/pages/Bookmark";
 import NotificationPage from "@/features/notification/pages/NotificationPage";
 
+/**
+ * 스플래시 페이지를 처리하는 컴포넌트
+ * 처음 접속 시 스플래시 페이지를 보여주고 2초 후 로그인 화면으로 이동
+ */
+function SplashHandler() {
+  const navigate = useNavigate();
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    // 처음 접속 시 스플래시 표시 후 2초 후 로그인 화면으로 이동
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+      navigate("/login", { replace: true });
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
+  if (showSplash) {
+    return <SplashPage />;
+  }
+
+  return null;
+}
+
 function App() {
   return (
     <>
@@ -29,8 +56,8 @@ function App() {
       <LanguageProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<SplashHandler />} />
             <Route element={<GlobalLayout />}>
-              <Route path="/" element={<LoginPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/find-password" element={<FindPasswordPage />} />
