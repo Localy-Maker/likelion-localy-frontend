@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router";
+import { useBookmarkToggle } from "@/features/local/hooks/useBookmarkToggle";
 import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
 import Header from "@/shared/components/Header/Header";
 import LoadingPage from "@/features/loading/pages/LoadingPage";
@@ -13,6 +14,7 @@ export default function LocalDetailPage() {
     const navigate = useNavigate();
     const { id } = useParams();
     const { data: placeData, loading } = usePlaceDetail(id);
+    const { toggleBookmark } = useBookmarkToggle();
 
     const handleLeftClick = () => navigate(-1);
 
@@ -20,12 +22,21 @@ export default function LocalDetailPage() {
         return <LoadingPage />;
     }
 
+    const handleBookmarkToggle = async (id) => {
+        try {
+            await toggleBookmark(id, true);
+        } catch (err) {
+            console.error('북마크 처리 실패:', err);
+        }
+    };
+
     return (
         <>
             <Header
                 text={placeData.placeName}
                 rightIcon={<BookmarkIcon />}
                 onLeftClick={handleLeftClick}
+                onRightClick={() => handleBookmarkToggle(id)}
             />
             <DetailContainer>
                 <PlaceImages images={placeData.images} />

@@ -8,8 +8,6 @@ import {
 } from "@/features/local/styles/LocalDetail.styles";
 
 export default function PlaceDescription({ shortDescription, longDescription }) {
-  if (!longDescription) return null;
-
   return (
     <DescriptionContainer>
       <InfoSection style={{ borderBottom: 'none' }}>
@@ -17,7 +15,7 @@ export default function PlaceDescription({ shortDescription, longDescription }) 
         <ShortDescription>{shortDescription}</ShortDescription>
       </InfoSection>
       <LongDescriptionContainer>
-        <Description>{longDescription}</Description>
+        {longDescription && <Description>{longDescription}</Description>}
       </LongDescriptionContainer>
     </DescriptionContainer>
   );

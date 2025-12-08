@@ -22,6 +22,7 @@ export default function PlaceBasicInfo({ placeData }) {
 
       {/* 전화번호 */}
       <InfoRow label="전화번호" value={placeData.phoneNumber} />
+
     </>
   );
 }
