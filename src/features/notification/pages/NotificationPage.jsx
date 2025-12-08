@@ -36,18 +36,28 @@ export default function NotificationPage() {
 
         if (response.success && response.data) {
           // Transform API data to notification format
-          const transformedNotifications = response.data.map((alarm) => ({
-            id: alarm.id,
-            type: alarm.type, // Keep uppercase (ANNOUNCEMENT or GENERAL)
-            isNew: !alarm.read,
-            sender: "Localy",
-            date: new Date(alarm.createdAt).toLocaleDateString("ko-KR", {
-              month: "long",
-              day: "numeric",
-            }),
-            title: alarm.title,
-            description: alarm.body,
-          }));
+          const transformedNotifications = response.data.map((alarm) => {
+            // createdAt는 [2025, 12, 8, 14, 52, 4, 258314000] 형식의 배열
+            const dateArray = alarm.createdAt;
+            const date = new Date(
+              dateArray[0], // year
+              dateArray[1] - 1, // month (0-indexed)
+              dateArray[2] // day
+            );
+
+            return {
+              id: alarm.id,
+              type: alarm.type, // Keep uppercase (ANNOUNCEMENT or GENERAL)
+              isNew: !alarm.read,
+              sender: "Localy",
+              date: date.toLocaleDateString("ko-KR", {
+                month: "long",
+                day: "numeric",
+              }),
+              title: alarm.title,
+              description: alarm.body,
+            };
+          });
 
           // Dev 환경에서만 변환된 데이터 로깅
           if (import.meta.env.DEV) {

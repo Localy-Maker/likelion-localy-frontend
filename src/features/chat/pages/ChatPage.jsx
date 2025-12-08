@@ -159,6 +159,11 @@ const InputWrapper = styled.div`
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
+
+  /* Input focus 시 border 색상 변경 */
+  &:focus-within {
+    border-color: #5482ff;
+  }
 `;
 
 const Input = styled.input`
