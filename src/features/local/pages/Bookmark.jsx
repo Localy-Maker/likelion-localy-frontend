@@ -8,7 +8,14 @@ import BookmarkList from "@/features/local/components/bookmark/BookmarkList";
 import { useBookmarks } from "@/features/local/hooks/useBookmarks";
 import { useInfiniteScroll } from "@/features/local/hooks/useInfiniteScroll";
 import { useBookmarkToggle } from "@/features/local/hooks/useBookmarkToggle";
-import { Container, ErrorMessage } from "@/features/local/styles/Bookmark.styles";
+import {
+  Container,
+  ErrorMessage,
+  EmptyMessage,
+  EmptyIcon,
+  EmptyText,
+  EmptySubText
+} from "@/features/local/styles/Bookmark.styles";
 
 export default function BookmarkPage() {
   const navigate = useNavigate();
@@ -41,12 +48,20 @@ export default function BookmarkPage() {
       <Container>
         <SortButtons sortType={sortType} onSortChange={handleSortChange} />
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        <BookmarkList
-          bookmarks={bookmarks}
-          onPlaceClick={handlePlaceClick}
-          onBookmarkToggle={handleBookmarkToggle}
-          lastElementRef={lastElementRef}
-        />
+        {!loading && bookmarks.length === 0 ? (
+          <EmptyMessage>
+            <EmptyIcon>🔖</EmptyIcon>
+            <EmptyText>아직 북마크된 장소가 없어요</EmptyText>
+            <EmptySubText>마음에 드는 장소를 북마크해보세요!</EmptySubText>
+          </EmptyMessage>
+        ) : (
+          <BookmarkList
+            bookmarks={bookmarks}
+            onPlaceClick={handlePlaceClick}
+            onBookmarkToggle={handleBookmarkToggle}
+            lastElementRef={lastElementRef}
+          />
+        )}
       </Container>
       <BottomNavigation />
     </>

@@ -108,3 +108,28 @@ export const ErrorMessage = styled.div`
   padding: 20px;
 `;
 
+export const EmptyMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  gap: 12px;
+`;
+
+export const EmptyIcon = styled.div`
+  font-size: 48px;
+  margin-bottom: 8px;
+`;
+
+export const EmptyText = styled.p`
+  ${font.medium16}
+  color: ${colors.gray[600]};
+`;
+
+export const EmptySubText = styled.p`
+  ${font.regular14}
+  color: ${colors.gray[400]};
+`;
+
