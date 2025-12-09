@@ -18,7 +18,7 @@ const ModalOverlay = styled.div`
 const ModalContainer = styled.div`
     background-color: #ffffff;
     border-radius: 16px;
-    padding: 32px 24px;
+    padding: 32px 12px;
     max-width: 320px;
     width: 90%;
     display: flex;
@@ -56,31 +56,14 @@ const DescriptionText = styled.p`
     margin: 0;
 `;
 
-const CloseButton = styled.button`
-    ${font.semibold16}
-    color: ${colors.white};
-    background-color: ${colors.blue[50]};
-    border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
-    margin-top: 8px;
-    cursor: pointer;
-    width: 100%;
-    transition: opacity 0.2s;
-
-    &:hover {
-        opacity: 0.8;
-    }
-`;
 
 /**
  * 위치 오류 모달 컴포넌트
  * @param {boolean} isOpen - 모달 열림/닫힘 상태
  * @param {function} onClose - 모달 닫기 콜백 함수
  * @param {string} placeName - 장소 이름 (선택)
- * @param {string} errorMessage - 에러 메시지 (선택)
  */
-export default function LocationError({ isOpen, onClose, placeName, errorMessage }) {
+export default function LocationError({ isOpen, onClose, placeName, }) {
     if (!isOpen) return null;
 
     const handleOverlayClick = (e) => {
@@ -94,7 +77,7 @@ export default function LocationError({ isOpen, onClose, placeName, errorMessage
             <ModalContainer>
                 <Title>잠시만요!</Title>
                 <Message>
-                    {errorMessage || '🥲 Localy가 당신의 위치를 정확하게 찾을 수 없어요.'}
+                    🥲 Localy가 당신의 위치를 정확하게 찾을 수 없어요.
                 </Message>
                 <Description>
                     {placeName && (
@@ -106,7 +89,6 @@ export default function LocationError({ isOpen, onClose, placeName, errorMessage
                         *GPS의/위치 서비스가 꺼져 있는지 확인해 보세요.
                     </DescriptionText>
                 </Description>
-                <CloseButton onClick={onClose}>확인</CloseButton>
             </ModalContainer>
         </ModalOverlay>
     );

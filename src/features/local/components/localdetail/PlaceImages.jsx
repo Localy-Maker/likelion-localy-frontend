@@ -12,6 +12,8 @@ export default function PlaceImages({ images }) {
       spaceBetween={16}
       direction="horizontal"
       padding={16}
+      borderRadius={0}
+      imageWidth={100}
     />
   );
 }

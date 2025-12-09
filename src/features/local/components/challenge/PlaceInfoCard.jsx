@@ -15,11 +15,11 @@ import {
   CertificationText
 } from "@/features/local/styles/Challenge.styles";
 
-export default function PlaceInfoCard({ 
-  placeInfo, 
-  onMapClick, 
-  onCertification, 
-  isVerifying 
+export default function PlaceInfoCard({
+  placeInfo,
+  onMapClick,
+  onCertification,
+  isVerifying
 }) {
   const imageSlides = placeInfo.images?.map((url) => ({ imageUrl: url })) || [];
 
@@ -33,6 +33,8 @@ export default function PlaceInfoCard({
             spaceBetween={16}
             direction="horizontal"
             padding={0}
+            borderRadius={0}
+            imageWidth={100}
           />
         )}
 

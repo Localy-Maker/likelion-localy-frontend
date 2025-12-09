@@ -6,6 +6,7 @@ import PointSummary from "@/features/local/components/mission/PointSummary";
 import MissionSummary from "@/features/local/components/mission/MissionSummary";
 import { useMissions, formatExpiresAt } from "@/features/local/hooks/useMissions";
 import { Container, ErrorMessage } from "@/features/local/styles/Mission.styles";
+import LocationError from "@/features/local/components/modal/LocationError";
 
 export default function MissionPage() {
     const navigate = useNavigate();
@@ -62,6 +63,7 @@ export default function MissionPage() {
                     completedMissions={formattedCompletedMissions}
                 />
             </Container>
+
             <BottomNavigation />
         </>
     );

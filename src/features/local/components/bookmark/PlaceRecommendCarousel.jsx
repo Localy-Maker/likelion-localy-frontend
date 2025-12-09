@@ -31,12 +31,13 @@ const PlaceDisplay = styled.div`
 const PlaceImage = styled.div`
   width: ${(props) => props.$width || 148}px;
   height: ${(props) => props.$height || 148}px;
+
   background-color: ${colors.gray[200]};
   background-image: ${(props) => props.$imageUrl ? `url(${props.$imageUrl})` : 'none'};
   background-size: cover;
   background-position: center;
-  border-radius: 8px;
   cursor: pointer;
+  border-radius: ${(props) => props.$borderRadius ?? 8}px;
 `;
 
 const PlaceContent = styled.div`
@@ -66,6 +67,7 @@ const PlaceLocation = styled.div`
  */
 export default function PlaceRecommendCarousel({
     title,
+    borderRadius = 8,
     places = [],
     imageWidth = 148,
     imageHeight = 148,
@@ -78,6 +80,8 @@ export default function PlaceRecommendCarousel({
     containerHeight,
     padding = 0,
 }) {
+    console.log(imageWidth, imageHeight, borderRadius);
+
     const navigate = useNavigate();
 
     const autoplayConfig = autoplay
@@ -123,6 +127,7 @@ export default function PlaceRecommendCarousel({
                                 $width={imageWidth}
                                 $height={imageHeight}
                                 $imageUrl={place.thumbnailImage || place.imageUrl}
+                                $borderRadius={borderRadius}
                             />
                             <PlaceContent>
                                 {place.category && <PlaceCategory>{place.category}</PlaceCategory>}

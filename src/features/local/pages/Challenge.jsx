@@ -54,6 +54,7 @@ export default function ChallengePage() {
                     onMapClick={handleMapClick}
                     onCertification={handleCertification}
                     isVerifying={isVerifying}
+                    borderRadius={0}
                 />
             </Container>
             <BottomNavigation />
@@ -73,6 +74,9 @@ export default function ChallengePage() {
                 placeName={missionData?.placeInfo?.placeName}
                 errorMessage={verifyResult?.message}
             />
+
+
+
         </>
     );
 }
