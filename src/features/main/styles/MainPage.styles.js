@@ -18,5 +18,5 @@ export const ScrollableContent = styled.div`
   display: flex;
   flex-direction: column;
   padding-bottom: 24px;
-  padding-top: 12px;
+  padding-top: 4px;
 `;

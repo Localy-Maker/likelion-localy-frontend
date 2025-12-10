@@ -2,10 +2,15 @@ import styled from "styled-components";
 
 export const Container = styled.div`
   position: relative;
-  width: 375px;
-  height: 812px;
+  width: 100%;
+  max-width: 375px;
+  min-height: calc(100vh - 120px); /* 헤더와 푸터 공간 제외 */
   background: #FFFFFF;
   margin: 0 auto;
+  padding: 20px 16px 80px; /* 하단 여백 추가 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 export const Header = styled.header`
@@ -71,22 +76,25 @@ export const HeaderSpacer = styled.div`
 
 export const ProfileCard = styled.div`
   box-sizing: border-box;
-  position: absolute;
-  width: 343px;
-  height: 267px;
-  left: calc(50% - 343px/2);
-  top: 124px;
+  position: relative;
+  width: 100%;
+  max-width: 343px;
+  min-height: 267px;
+  margin-top: 20px;
   background: #FFFFFF;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
 `;
 
 export const ProfileIcon = styled.div`
-  position: absolute;
+  position: relative;
   width: 113px;
   height: 115px;
-  left: calc(50% - 113px/2);
-  top: 12px;
+  margin-bottom: 10px;
   font-family: 'SF Pro';
   font-style: normal;
   font-weight: 400;
@@ -100,11 +108,10 @@ export const ProfileIcon = styled.div`
 `;
 
 export const ProfileName = styled.div`
-  position: absolute;
-  width: 44px;
-  height: 22px;
-  left: calc(50% - 44px/2);
-  top: 137px;
+  position: relative;
+  width: 100%;
+  min-height: 22px;
+  margin-bottom: 4px;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 600;
@@ -113,14 +120,17 @@ export const ProfileName = styled.div`
   text-align: center;
   letter-spacing: -0.43px;
   color: #0D0D0D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const ProfileEmail = styled.div`
-  position: absolute;
-  width: 194px;
-  height: 22px;
-  left: calc(50% - 194px/2);
-  top: 163px;
+  position: relative;
+  width: auto;
+  max-width: 194px;
+  min-height: 22px;
+  margin-bottom: 16px;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
@@ -129,14 +139,15 @@ export const ProfileEmail = styled.div`
   text-align: center;
   letter-spacing: -0.43px;
   color: #838383;
+  word-break: break-all;
 `;
 
 export const ActionButtons = styled.div`
-  position: absolute;
-  width: 300px;
+  position: relative;
+  width: 100%;
+  max-width: 300px;
   height: 48px;
-  left: calc(50% - 300px/2);
-  top: 197px;
+  margin-top: auto;
   background: #E0E0E0;
   border-radius: 8px;
   display: flex;
@@ -170,11 +181,11 @@ export const ActionButton = styled.button`
 `;
 
 export const BottomActions = styled.div`
-  position: absolute;
-  width: 328px;
+  position: relative;
+  width: 100%;
+  max-width: 328px;
   height: 48px;
-  left: calc(50% - 328px/2);
-  top: 407px;
+  margin-top: 20px;
   background: #F3F3F3;
   border-radius: 16px;
   display: flex;

@@ -191,7 +191,7 @@ export default function MyPage() {
           <S.ActionButton type="button" onClick={() => navigate("/mypage/edit")}>
             회원 정보 수정
           </S.ActionButton>
-          <S.ActionButton type="button" onClick={() => navigate("/onboarding?step=2")}>
+          <S.ActionButton type="button" onClick={() => navigate("/onboarding?step=2&from=mypage")}>
             관심사 변경
           </S.ActionButton>
           <S.ActionButton type="button" onClick={() => navigate("/premium")}>

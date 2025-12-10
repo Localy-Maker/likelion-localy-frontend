@@ -294,7 +294,10 @@ export const ActivityField = styled.div`
   width: 120px;
   height: 120px;
   background: #FFFFFF;
-  border: 1px solid ${(props) => (props.$isSelected ? "#5482FF" : props.$isDisabled ? "#E0E0E0" : "#E0E0E0")};
+  border: 1px solid ${(props) => {
+    if (props.$isExisting || props.$isSelected) return "#5482FF";
+    return props.$isDisabled ? "#E0E0E0" : "#E0E0E0";
+  }};
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -302,14 +305,17 @@ export const ActivityField = styled.div`
   justify-content: center;
   cursor: ${(props) => (props.$isDisabled ? "not-allowed" : "pointer")};
   transition: all 0.2s ease;
-  background: ${(props) => (props.$isSelected ? "rgba(84, 130, 255, 0.05)" : props.$isDisabled ? "#F9F9F9" : "#FFFFFF")};
+  background: ${(props) => {
+    if (props.$isExisting || props.$isSelected) return "rgba(84, 130, 255, 0.1)";
+    return props.$isDisabled ? "#F9F9F9" : "#FFFFFF";
+  }};
   opacity: ${(props) => (props.$isDisabled ? 0.5 : 1)};
   
   &:hover {
     border-color: ${(props) => (props.$isDisabled ? "#E0E0E0" : "#5482FF")};
     background: ${(props) => {
       if (props.$isDisabled) return "#F9F9F9";
-      return props.$isSelected ? "rgba(84, 130, 255, 0.1)" : "rgba(84, 130, 255, 0.02)";
+      return props.$isExisting || props.$isSelected ? "rgba(84, 130, 255, 0.15)" : "rgba(84, 130, 255, 0.02)";
     }};
   }
   
@@ -337,6 +343,58 @@ export const ActivityLabel = styled.span`
   line-height: 17px;
   color: #0D0D0D;
   text-align: center;
+`;
+
+export const ActivityCharacter = styled.div`
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+  
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  /* 쇼핑: 왼쪽 아래에 선에 겹쳐있게 */
+  ${(props) => props.$position === "shopping" && `
+    left: -4px;
+    bottom: -4px;
+  `}
+  
+  /* 자연: 오른쪽 아래에 선에 겹쳐있게 */
+  ${(props) => props.$position === "nature" && `
+    right: -4px;
+    bottom: -4px;
+  `}
+  
+  /* 언어교환: 왼쪽 위에서 1/3 지점에 겹쳐있게 */
+  ${(props) => props.$position === "language" && `
+    left: -4px;
+    top: calc(33.33% - 14px);
+  `}
+  
+  /* 음식: 오른쪽 아래에 선에 겹쳐있게 */
+  ${(props) => props.$position === "food" && `
+    right: -4px;
+    bottom: -4px;
+  `}
+  
+  /* 문화: 왼쪽 위에서 1/3 지점에 겹쳐있게 */
+  ${(props) => props.$position === "culture" && `
+    left: -6px;
+    top: calc(33.33% - 14px);
+  `}
+  
+  /* 관광: 오른쪽 위 모서리쪽에 겹쳐있게 */
+  ${(props) => props.$position === "tourism" && `
+    right: -4px;
+    top: -4px;
+  `}
 `;
 
 export const InfoText = styled.p`

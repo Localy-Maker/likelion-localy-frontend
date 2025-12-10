@@ -4,6 +4,8 @@ import { useLanguage } from "@/contexts/useLanguage";
 import * as S from "../styles/OnboardingPage.styles";
 import SidebarModal from "../components/SidebarModal";
 import { updateNationality, updateInterests } from "../api/onboardingApi";
+import { getInterests } from "@/features/mypage/api/mypageApi";
+import { renderEmotionCharacter } from "@/shared/utils/emotionCharacters";
 
 /**
  * @component OnboardingPage
@@ -17,7 +19,8 @@ export default function OnboardingPage() {
   
   // URL 쿼리 파라미터에서 초기 스텝 가져오기 (기본값: 1)
   const initialStep = parseInt(searchParams.get("step") || "1", 10);
-  const isInterestChange = initialStep === 2; // 관심사 변경 모드인지 확인
+  // 마이페이지에서 관심사 변경으로 들어온 경우 (step=2 또는 from=mypage)
+  const isInterestChange = initialStep === 2 || searchParams.get("from") === "mypage";
   
   // 현재 단계 상태 (1, 2, 3)
   const [currentStep, setCurrentStep] = useState(initialStep);
@@ -39,6 +42,10 @@ export default function OnboardingPage() {
   // 2단계: 기분 좋을 때 활동 선택 상태
   const [selectedActivities, setSelectedActivities] = useState([]);
   
+  // 기존 관심사 (관심사 변경 모드일 때 사용)
+  const [existingInterests, setExistingInterests] = useState([]);
+  const [existingBadMoodInterests, setExistingBadMoodInterests] = useState([]);
+
   // 3단계: 기분 안 좋을 때 활동 선택 상태
   const [selectedBadMoodActivities, setSelectedBadMoodActivities] = useState([]);
   
@@ -86,13 +93,96 @@ export default function OnboardingPage() {
   // 활동 옵션 목록 (기분 좋을 때 - 언어에 따라 동적으로 변경)
   // 언어가 변경될 때마다 재생성되도록 useMemo 사용
   const activityOptions = useMemo(() => [
-    { id: "shopping", label: t("shopping"), icon: "🛍️" },
-    { id: "food", label: t("food"), icon: "🥑" },
-    { id: "culture", label: t("culture"), icon: "🗽" },
-    { id: "nature", label: t("nature"), icon: "🌳" },
-    { id: "language", label: t("languageExchange"), icon: "🍸" },
-    { id: "tourism", label: t("tourism"), icon: "🧳" },
+    { id: "shopping", label: t("shopping"), icon: "🛍️", character: "happiness" },
+    { id: "food", label: t("food"), icon: "🥑", character: "anger" },
+    { id: "culture", label: t("culture"), icon: "🗽", character: "sadness" },
+    { id: "nature", label: t("nature"), icon: "🌳", character: "anxiety" },
+    { id: "language", label: t("languageExchange"), icon: "🍸", character: "neutral" },
+    { id: "tourism", label: t("tourism"), icon: "🧳", character: "depression" },
   ], [t]);
+
+  // 온보딩 페이지 진입 시 기존 사용자 정보 가져오기
+  useEffect(() => {
+    const fetchExistingData = async () => {
+      try {
+        const response = await getInterests();
+        const responseData = response?.data || response;
+        
+        if (responseData) {
+          // 1단계: 언어 및 국적 설정
+          if (responseData.language) {
+            const langOption = languageOptions.find(opt => opt.value === responseData.language);
+            if (langOption) {
+              setDisplayLanguage(langOption.label);
+              setDisplayLanguageValue(responseData.language);
+              // 언어가 변경되면 언어 컨텍스트도 업데이트
+              changeLanguage(responseData.language);
+            }
+          }
+          
+          if (responseData.nationality) {
+            const natOption = nationalityOptions.find(opt => opt.value === responseData.nationality);
+            if (natOption) {
+              setNationality(natOption.label);
+              setNationalityValue(responseData.nationality);
+            }
+          }
+          
+          // 2-3단계: 관심사 설정
+          // API 응답 구조: { interests: ["음식", "문화", ...] }
+          // goodMoodInterests와 badMoodInterests가 분리되어 있으면 사용, 없으면 interests 배열 사용
+          const allInterests = responseData.interests || [];
+          const goodMoodInterests = responseData.goodMoodInterests || allInterests;
+          const badMoodInterests = responseData.badMoodInterests || [];
+          
+          // API 응답의 한글 문자열을 활동 ID로 변환하는 함수
+          const convertInterestLabelToId = (label) => {
+            // 활동 옵션에서 label이 일치하는 항목 찾기
+            const activity = activityOptions.find(opt => opt.label === label);
+            return activity ? activity.id : null;
+          };
+          
+          // 한글 문자열을 활동 ID로 변환
+          const goodMoodIds = goodMoodInterests
+            .map(label => convertInterestLabelToId(label))
+            .filter(id => id !== null);
+          const badMoodIds = badMoodInterests
+            .map(label => convertInterestLabelToId(label))
+            .filter(id => id !== null);
+          
+          setExistingInterests(goodMoodIds);
+          setExistingBadMoodInterests(badMoodIds);
+          
+          // 관심사 변경 모드일 때 현재 단계에 맞게 선택된 활동 즉시 설정
+          if (isInterestChange) {
+            if (currentStep === 2 && goodMoodIds.length > 0) {
+              setSelectedActivities(goodMoodIds);
+            } else if (currentStep === 3 && badMoodIds.length > 0) {
+              setSelectedBadMoodActivities(badMoodIds);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch existing user data:", error);
+      }
+    };
+    
+    fetchExistingData();
+  }, [isInterestChange, currentStep, activityOptions]);
+
+  // 현재 단계가 변경될 때마다 해당 단계의 선택된 활동 설정
+  // existingInterests가 설정된 후에도 현재 단계에 맞게 선택된 활동 설정
+  useEffect(() => {
+    if (currentStep === 2) {
+      if (existingInterests.length > 0) {
+        setSelectedActivities(existingInterests);
+      }
+    } else if (currentStep === 3) {
+      if (existingBadMoodInterests.length > 0) {
+        setSelectedBadMoodActivities(existingBadMoodInterests);
+      }
+    }
+  }, [currentStep, existingInterests, existingBadMoodInterests]);
 
   /**
    * 1단계 완료 버튼 활성화 조건
@@ -311,17 +401,32 @@ export default function OnboardingPage() {
       
       {/* 활동 선택 그리드 */}
       <S.ActivityGrid>
-        {activityOptions.map((activity) => (
-          <S.ActivityField
-            key={activity.id}
-            onClick={() => handleActivityToggle(activity.id)}
-            $isSelected={selectedActivities.includes(activity.id)}
-            $isDisabled={!selectedActivities.includes(activity.id) && selectedActivities.length >= 3}
-          >
-            <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
-            <S.ActivityLabel>{activity.label}</S.ActivityLabel>
-          </S.ActivityField>
-        ))}
+        {activityOptions.map((activity) => {
+          const isSelected = selectedActivities.includes(activity.id);
+          const isExisting = existingInterests.includes(activity.id);
+          const isDisabled = !isSelected && selectedActivities.length >= 3;
+          
+          // 쇼핑, 자연, 언어교환에만 캐릭터 표시
+          const shouldShowCharacter = activity.id === "shopping" || activity.id === "nature" || activity.id === "language";
+          
+          return (
+            <S.ActivityField
+              key={activity.id}
+              onClick={() => handleActivityToggle(activity.id)}
+              $isSelected={isSelected}
+              $isExisting={isExisting}
+              $isDisabled={isDisabled}
+            >
+              <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
+              <S.ActivityLabel>{activity.label}</S.ActivityLabel>
+              {shouldShowCharacter && activity.character && (
+                <S.ActivityCharacter $position={activity.id}>
+                  {renderEmotionCharacter(activity.character)}
+                </S.ActivityCharacter>
+              )}
+            </S.ActivityField>
+          );
+        })}
       </S.ActivityGrid>
       
       {/* 안내 문구 */}
@@ -360,17 +465,32 @@ export default function OnboardingPage() {
       
       {/* 활동 선택 그리드 - 기분 좋을 때와 동일한 카테고리 사용 */}
       <S.ActivityGrid>
-        {activityOptions.map((activity) => (
-          <S.ActivityField
-            key={activity.id}
-            onClick={() => handleBadMoodActivityToggle(activity.id)}
-            $isSelected={selectedBadMoodActivities.includes(activity.id)}
-            $isDisabled={!selectedBadMoodActivities.includes(activity.id) && selectedBadMoodActivities.length >= 3}
-          >
-            <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
-            <S.ActivityLabel>{activity.label}</S.ActivityLabel>
-          </S.ActivityField>
-        ))}
+        {activityOptions.map((activity) => {
+          const isSelected = selectedBadMoodActivities.includes(activity.id);
+          const isExisting = existingBadMoodInterests.includes(activity.id);
+          const isDisabled = !isSelected && selectedBadMoodActivities.length >= 3;
+          
+          // 음식, 문화, 관광에만 캐릭터 표시
+          const shouldShowCharacter = activity.id === "food" || activity.id === "culture" || activity.id === "tourism";
+          
+          return (
+            <S.ActivityField
+              key={activity.id}
+              onClick={() => handleBadMoodActivityToggle(activity.id)}
+              $isSelected={isSelected}
+              $isExisting={isExisting}
+              $isDisabled={isDisabled}
+            >
+              <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
+              <S.ActivityLabel>{activity.label}</S.ActivityLabel>
+              {shouldShowCharacter && activity.character && (
+                <S.ActivityCharacter $position={activity.id}>
+                  {renderEmotionCharacter(activity.character)}
+                </S.ActivityCharacter>
+              )}
+            </S.ActivityField>
+          );
+        })}
       </S.ActivityGrid>
       
       {/* 안내 문구 */}
@@ -395,16 +515,18 @@ export default function OnboardingPage() {
             />
           </svg>
         </S.BackButton>
-        <S.Title>{t("onboarding")}</S.Title>
+        <S.Title>{isInterestChange ? "관심사 변경" : "사용자 설정"}</S.Title>
         <S.HeaderSpacer />
       </S.Header>
 
-      {/* 단계 인디케이터 */}
-      <S.StepIndicator>
-        <S.StepBar $isActive={currentStep >= 1} />
-        <S.StepBar $isActive={currentStep >= 2} />
-        <S.StepBar $isActive={currentStep >= 3} />
-      </S.StepIndicator>
+      {/* 단계 인디케이터 - 관심사 변경 모드일 때는 숨김 */}
+      {!isInterestChange && (
+        <S.StepIndicator>
+          <S.StepBar $isActive={currentStep >= 1} />
+          <S.StepBar $isActive={currentStep >= 2} />
+          <S.StepBar $isActive={currentStep >= 3} />
+        </S.StepIndicator>
+      )}
 
       {/* 단계별 컨텐츠 */}
       <S.ContentWrapper>
