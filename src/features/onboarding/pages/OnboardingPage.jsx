@@ -4,6 +4,8 @@ import { useLanguage } from "@/contexts/useLanguage";
 import * as S from "../styles/OnboardingPage.styles";
 import SidebarModal from "../components/SidebarModal";
 import { updateNationality, updateInterests } from "../api/onboardingApi";
+import { getInterests } from "@/features/mypage/api/mypageApi";
+import { renderEmotionCharacter } from "@/shared/utils/emotionCharacters";
 
 /**
  * @component OnboardingPage
@@ -39,6 +41,10 @@ export default function OnboardingPage() {
   // 2단계: 기분 좋을 때 활동 선택 상태
   const [selectedActivities, setSelectedActivities] = useState([]);
   
+  // 기존 관심사 (관심사 변경 모드일 때 사용)
+  const [existingInterests, setExistingInterests] = useState([]);
+  const [existingBadMoodInterests, setExistingBadMoodInterests] = useState([]);
+
   // 3단계: 기분 안 좋을 때 활동 선택 상태
   const [selectedBadMoodActivities, setSelectedBadMoodActivities] = useState([]);
   
@@ -86,13 +92,44 @@ export default function OnboardingPage() {
   // 활동 옵션 목록 (기분 좋을 때 - 언어에 따라 동적으로 변경)
   // 언어가 변경될 때마다 재생성되도록 useMemo 사용
   const activityOptions = useMemo(() => [
-    { id: "shopping", label: t("shopping"), icon: "🛍️" },
-    { id: "food", label: t("food"), icon: "🥑" },
-    { id: "culture", label: t("culture"), icon: "🗽" },
-    { id: "nature", label: t("nature"), icon: "🌳" },
-    { id: "language", label: t("languageExchange"), icon: "🍸" },
-    { id: "tourism", label: t("tourism"), icon: "🧳" },
+    { id: "shopping", label: t("shopping"), icon: "🛍️", character: "happiness" },
+    { id: "food", label: t("food"), icon: "🥑", character: "anger" },
+    { id: "culture", label: t("culture"), icon: "🗽", character: "sadness" },
+    { id: "nature", label: t("nature"), icon: "🌳", character: "anxiety" },
+    { id: "language", label: t("languageExchange"), icon: "🍸", character: "neutral" },
+    { id: "tourism", label: t("tourism"), icon: "🧳", character: "sadness" },
   ], [t]);
+
+  // 관심사 변경 모드일 때 기존 관심사 가져오기
+  useEffect(() => {
+    if (isInterestChange) {
+      const fetchExistingInterests = async () => {
+        try {
+          const response = await getInterests();
+          const responseData = response?.data || response;
+          // 기존 관심사가 있다면 설정
+          if (responseData) {
+            // API 응답 구조에 따라 goodMoodInterests와 badMoodInterests를 가져옴
+            const goodMoodInterests = responseData.goodMoodInterests || responseData.interests || [];
+            const badMoodInterests = responseData.badMoodInterests || [];
+            
+            setExistingInterests(goodMoodInterests);
+            setExistingBadMoodInterests(badMoodInterests);
+            
+            // 현재 단계에 따라 선택된 활동 설정
+            if (currentStep === 2) {
+              setSelectedActivities(goodMoodInterests);
+            } else if (currentStep === 3) {
+              setSelectedBadMoodActivities(badMoodInterests);
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch existing interests:", error);
+        }
+      };
+      fetchExistingInterests();
+    }
+  }, [isInterestChange, currentStep]);
 
   /**
    * 1단계 완료 버튼 활성화 조건
@@ -311,17 +348,29 @@ export default function OnboardingPage() {
       
       {/* 활동 선택 그리드 */}
       <S.ActivityGrid>
-        {activityOptions.map((activity) => (
-          <S.ActivityField
-            key={activity.id}
-            onClick={() => handleActivityToggle(activity.id)}
-            $isSelected={selectedActivities.includes(activity.id)}
-            $isDisabled={!selectedActivities.includes(activity.id) && selectedActivities.length >= 3}
-          >
-            <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
-            <S.ActivityLabel>{activity.label}</S.ActivityLabel>
-          </S.ActivityField>
-        ))}
+        {activityOptions.map((activity) => {
+          const isSelected = selectedActivities.includes(activity.id);
+          const isExisting = existingInterests.includes(activity.id);
+          const isDisabled = !isSelected && selectedActivities.length >= 3;
+          
+          return (
+            <S.ActivityField
+              key={activity.id}
+              onClick={() => handleActivityToggle(activity.id)}
+              $isSelected={isSelected}
+              $isExisting={isExisting}
+              $isDisabled={isDisabled}
+            >
+              <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
+              <S.ActivityLabel>{activity.label}</S.ActivityLabel>
+              {activity.character && (
+                <S.ActivityCharacter>
+                  {renderEmotionCharacter(activity.character)}
+                </S.ActivityCharacter>
+              )}
+            </S.ActivityField>
+          );
+        })}
       </S.ActivityGrid>
       
       {/* 안내 문구 */}
@@ -360,17 +409,29 @@ export default function OnboardingPage() {
       
       {/* 활동 선택 그리드 - 기분 좋을 때와 동일한 카테고리 사용 */}
       <S.ActivityGrid>
-        {activityOptions.map((activity) => (
-          <S.ActivityField
-            key={activity.id}
-            onClick={() => handleBadMoodActivityToggle(activity.id)}
-            $isSelected={selectedBadMoodActivities.includes(activity.id)}
-            $isDisabled={!selectedBadMoodActivities.includes(activity.id) && selectedBadMoodActivities.length >= 3}
-          >
-            <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
-            <S.ActivityLabel>{activity.label}</S.ActivityLabel>
-          </S.ActivityField>
-        ))}
+        {activityOptions.map((activity) => {
+          const isSelected = selectedBadMoodActivities.includes(activity.id);
+          const isExisting = existingBadMoodInterests.includes(activity.id);
+          const isDisabled = !isSelected && selectedBadMoodActivities.length >= 3;
+          
+          return (
+            <S.ActivityField
+              key={activity.id}
+              onClick={() => handleBadMoodActivityToggle(activity.id)}
+              $isSelected={isSelected}
+              $isExisting={isExisting}
+              $isDisabled={isDisabled}
+            >
+              <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
+              <S.ActivityLabel>{activity.label}</S.ActivityLabel>
+              {activity.character && (
+                <S.ActivityCharacter>
+                  {renderEmotionCharacter(activity.character)}
+                </S.ActivityCharacter>
+              )}
+            </S.ActivityField>
+          );
+        })}
       </S.ActivityGrid>
       
       {/* 안내 문구 */}
