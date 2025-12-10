@@ -97,8 +97,9 @@ export const InputWrapper = styled.div`
   position: relative;
   width: 100%;
   flex: 1;
-  margin-bottom: 0;
+  margin-bottom: ${(props) => (props.$hasMessage ? "28px" : "6px")}; /* 안내문구가 있을 때만 여백 증가 */
   margin-top: 0;
+  min-height: 39px; /* Input 높이만큼 최소 높이 설정 */
   
   /* 비밀번호 입력 필드 (Form 내에서 2번째 InputWrapper) 위에만 여백 */
   &:nth-of-type(2) {
@@ -202,12 +203,16 @@ export const PasswordToggle = styled.button`
 
 export const PasswordHint = styled.p`
   ${font.regular12}
-  color: #3D3D3D;
+  color: ${(props) => (props.$hasError ? "#C53929" : "#3D3D3D")};
   margin-top: 6px;
   margin-bottom: 0;
   font-size: 10px;
   line-height: 22px;
   letter-spacing: -0.43px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
 `;
 
 export const TimerText = styled.span`

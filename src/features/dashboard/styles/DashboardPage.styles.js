@@ -125,9 +125,9 @@ export const ChartTitle = styled.div`
 export const PillsContainer = styled.div`
   position: relative;
   width: 100%;
-  max-width: 223px;
+  max-width: 343px; /* 그래프와 같은 너비 */
   height: 29px;
-  margin: 0 auto 16px; /* 상단 여백 제거, 하단 여백 추가 */
+  margin: 0 0 16px 0; /* 왼쪽 정렬, 하단 여백 추가 */
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -418,6 +418,24 @@ export const WeekGridLine = styled.div`
   z-index: 0;
 `;
 
+export const WeekYAxisLabel = styled.div`
+  position: absolute;
+  width: 20px;
+  height: 14px;
+  left: ${props => props.$left}px;
+  top: ${props => props.$top}px;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: -0.43px;
+  color: #838383;
+  text-align: right;
+  transform: translateY(-50%);
+  padding-right: 4px;
+`;
+
 export const WeekChartContainer = styled.div`
   position: absolute;
   width: 285px;
@@ -528,7 +546,7 @@ export const MonthDateHeader = styled.div`
   gap: 4px;
   position: absolute;
   width: auto;
-  min-width: 74px;
+  min-width: 90px; /* 년도와 월이 잘리지 않도록 너비 증가 */
   height: 22px;
   left: 50%;
   transform: translateX(-50%);
@@ -540,6 +558,7 @@ export const MonthDateHeader = styled.div`
   line-height: 22px;
   letter-spacing: -0.43px;
   color: #0D0D0D;
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
 `;
 
 export const MonthChevronIcon = styled.div`
@@ -549,6 +568,12 @@ export const MonthChevronIcon = styled.div`
   width: 12px;
   height: 12px;
   cursor: pointer;
+  flex-shrink: 0; /* 아이콘 크기 고정 */
+  
+  svg {
+    width: 100%;
+    height: 100%;
+  }
   
   &:hover {
     opacity: 0.7;

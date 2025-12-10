@@ -207,7 +207,7 @@ export default function FindPasswordPage() {
       <S.Form onSubmit={handleSubmit}>
         {/* 이메일 입력 및 인증받기 버튼 */}
         <S.InputRow>
-          <S.InputWrapper>
+          <S.InputWrapper $hasMessage={showEmailError || (email.trim() !== "" && !isEmailValid)}>
             <S.Input
               type="email"
               placeholder="이메일(아이디)"
@@ -215,9 +215,16 @@ export default function FindPasswordPage() {
               onChange={(e) => setEmail(e.target.value)}
               $hasError={showEmailError}
             />
-            {/* 이메일 형식 에러 메시지 */}
-            {showEmailError && (
+            {/* 이메일 형식 에러 메시지 또는 힌트 표시 */}
+            {showEmailError ? (
               <S.ErrorMessage>올바른 이메일 형식이 아닙니다.</S.ErrorMessage>
+            ) : (
+              // 이메일을 입력했지만 형식이 올바르지 않을 때만 힌트 표시 (완벽하게 올바른 형태가 되면 사라짐)
+              email.trim() !== "" && !isEmailValid && (
+                <S.PasswordHint>
+                  올바른 이메일 형식을 입력해주세요. (예: example@email.com)
+                </S.PasswordHint>
+              )
             )}
           </S.InputWrapper>
           {/* 인증받기/재전송 버튼 */}
@@ -232,7 +239,7 @@ export default function FindPasswordPage() {
         </S.InputRow>
 
         {/* 인증번호 입력 필드 */}
-        <S.InputWrapper>
+        <S.InputWrapper $hasMessage={showVerificationCodeError || !!error}>
           <S.Input
             type="text"
             placeholder="인증번호 입력"
@@ -249,13 +256,14 @@ export default function FindPasswordPage() {
           {showVerificationCodeError && (
             <S.ErrorMessage>인증번호는 6자리입니다.</S.ErrorMessage>
           )}
+          {/* 에러 메시지 표시 */}
+          {error && (
+            <S.ErrorMessage style={{ marginTop: "8px" }}>{error}</S.ErrorMessage>
+          )}
         </S.InputWrapper>
         
-        {/* 에러 메시지 */}
-        {error && <S.ErrorMessage style={{ marginTop: "8px", textAlign: "center" }}>{error}</S.ErrorMessage>}
-        
         {/* 변경할 비밀번호 입력 필드 */}
-        <S.InputWrapper>
+        <S.InputWrapper $hasMessage={showPasswordError || !isPasswordValid}>
           <S.Input
             type={showPassword ? "text" : "password"}
             placeholder="변경할 비밀번호"
@@ -286,18 +294,16 @@ export default function FindPasswordPage() {
               )}
             </svg>
           </S.PasswordToggle>
-          {/* 비밀번호 에러 메시지 또는 힌트 표시 */}
-          {showPasswordError ? (
-            <S.ErrorMessage>비밀번호 형식이 올바르지 않습니다.</S.ErrorMessage>
-          ) : (
-            <S.PasswordHint>
+          {/* 비밀번호 힌트 표시 (조건에 맞지 않을 때 빨간색으로 표시) */}
+          {!isPasswordValid && (
+            <S.PasswordHint $hasError={newPassword.trim() !== "" && !isPasswordValid}>
               영문 소문자 최소 8~ 최대 16자리, 특수문자포함(!#$%&*@^)
             </S.PasswordHint>
           )}
         </S.InputWrapper>
 
         {/* 변경한 비밀번호 재입력 필드 */}
-        <S.InputWrapper>
+        <S.InputWrapper $hasMessage={showConfirmPasswordError}>
           <S.Input
             type={showConfirmPassword ? "text" : "password"}
             placeholder="변경한 비밀번호 재입력"

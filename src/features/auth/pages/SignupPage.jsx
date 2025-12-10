@@ -251,7 +251,7 @@ export default function SignupPage() {
       <S.Form onSubmit={handleSubmit}>
         {/* 이메일 입력 및 인증받기 버튼 */}
         <S.InputRow>
-          <S.InputWrapper>
+          <S.InputWrapper $hasMessage={showEmailError || (email.trim() !== "" && !isEmailValid)}>
             <S.Input
               type="email"
               placeholder="이메일(아이디)"
@@ -263,7 +263,7 @@ export default function SignupPage() {
             {showEmailError ? (
               <S.ErrorMessage>올바른 이메일 형식이 아닙니다.</S.ErrorMessage>
             ) : (
-              // 이메일을 입력했지만 형식이 올바르지 않을 때만 힌트 표시
+              // 이메일을 입력했지만 형식이 올바르지 않을 때만 힌트 표시 (완벽하게 올바른 형태가 되면 사라짐)
               email.trim() !== "" && !isEmailValid && (
                 <S.PasswordHint>
                   올바른 이메일 형식을 입력해주세요. (예: example@email.com)
@@ -283,7 +283,7 @@ export default function SignupPage() {
         </S.InputRow>
 
         {/* 인증번호 입력 필드 */}
-        <S.InputWrapper>
+        <S.InputWrapper $hasMessage={showVerificationCodeError || !!error}>
           <S.Input
             type="text"
             placeholder="인증번호 입력"
@@ -319,7 +319,7 @@ export default function SignupPage() {
         </S.InputWrapper>
 
         {/* 비밀번호 입력 필드 */}
-        <S.InputWrapper>
+        <S.InputWrapper $hasMessage={showPasswordError || !isPasswordValid}>
           <S.Input
             type={showPassword ? "text" : "password"}
             placeholder="비밀번호"
@@ -350,21 +350,16 @@ export default function SignupPage() {
               )}
             </svg>
           </S.PasswordToggle>
-          {/* 비밀번호 에러 메시지 또는 힌트 표시 */}
-          {showPasswordError ? (
-            <S.ErrorMessage>비밀번호 형식이 올바르지 않습니다.</S.ErrorMessage>
-          ) : (
-            // 비밀번호를 입력하지 않았거나 조건을 만족하지 않을 때 힌트 표시 (조건 만족 시 사라짐)
-            (password.trim() === "" || !isPasswordValid) && (
-              <S.PasswordHint>
-                영문 소문자 최소 8 ~ 최대 16자리, 특수문자포함 ( ! # $ % & * @ ^ )
-              </S.PasswordHint>
-            )
+          {/* 비밀번호 힌트 표시 (조건에 맞지 않을 때 빨간색으로 표시) */}
+          {!isPasswordValid && (
+            <S.PasswordHint $hasError={password.trim() !== "" && !isPasswordValid}>
+              영문 소문자 최소 8 ~ 최대 16자리, 특수문자포함 ( ! # $ % & * @ ^ )
+            </S.PasswordHint>
           )}
         </S.InputWrapper>
 
         {/* 비밀번호 확인 입력 필드 */}
-        <S.InputWrapper>
+        <S.InputWrapper $hasMessage={showConfirmPasswordError}>
           <S.Input
             type={showConfirmPassword ? "text" : "password"}
             placeholder="비밀번호 재입력"

@@ -380,23 +380,15 @@ export default function OnboardingPage() {
       {/* 질문 섹션 */}
       <S.QuestionSection>
         <S.QuestionTitle>
-          {t("question")}
+          기분 좋은 날에는
+          <br />
+          어떤 활동이 당신에게 더 큰 즐거움을 주나요?
         </S.QuestionTitle>
         <S.QuestionSubtitle>
-          {t("questionSubtitle")}
+          <span style={{ color: '#5482FF' }}>당신의 행복을 더욱 확장할 수 있는</span> 관심사를 선택해주세요.
+          <br />
+          관심사는 <span style={{ color: '#5482FF' }}>최대 3가지</span> 선택 가능해요.
         </S.QuestionSubtitle>
-        <S.QuestionLimit>
-          {t("questionLimit").split("3").map((part, index, array) => 
-            index === array.length - 1 ? (
-              <span key={index}>{part}</span>
-            ) : (
-              <span key={index}>
-                {part}
-                <span style={{ color: "#5482FF" }}>3</span>
-              </span>
-            )
-          )}
-        </S.QuestionLimit>
       </S.QuestionSection>
       
       {/* 활동 선택 그리드 */}
@@ -428,11 +420,6 @@ export default function OnboardingPage() {
           );
         })}
       </S.ActivityGrid>
-      
-      {/* 안내 문구 */}
-      <S.InfoText>
-        {t("questionModify")}
-      </S.InfoText>
     </>
   );
   
@@ -444,23 +431,15 @@ export default function OnboardingPage() {
       {/* 질문 섹션 */}
       <S.QuestionSection>
         <S.QuestionTitle>
-          {t("badMoodQuestion")}
+          힘들고 지친 날에는
+          <br />
+          어떤 활동이 당신에게 가장 큰 위로를 주나요?
         </S.QuestionTitle>
         <S.QuestionSubtitle>
-          {t("badMoodSubtitle")}
+          <span style={{ color: '#5482FF' }}>기분 전환에 도움이 되는</span> 관심사를 골라주세요.
+          <br />
+          관심사는 <span style={{ color: '#5482FF' }}>최대 3가지</span> 선택 가능해요.
         </S.QuestionSubtitle>
-        <S.QuestionLimit>
-          {t("badMoodLimit").split("3").map((part, index, array) => 
-            index === array.length - 1 ? (
-              <span key={index}>{part}</span>
-            ) : (
-              <span key={index}>
-                {part}
-                <span style={{ color: "#5482FF" }}>3</span>
-              </span>
-            )
-          )}
-        </S.QuestionLimit>
       </S.QuestionSection>
       
       {/* 활동 선택 그리드 - 기분 좋을 때와 동일한 카테고리 사용 */}
@@ -492,11 +471,6 @@ export default function OnboardingPage() {
           );
         })}
       </S.ActivityGrid>
-      
-      {/* 안내 문구 */}
-      <S.InfoText>
-        {t("badMoodModify")}
-      </S.InfoText>
     </>
   );
 
@@ -534,6 +508,13 @@ export default function OnboardingPage() {
         {currentStep === 2 && renderStep2()}
         {currentStep === 3 && renderStep3()}
       </S.ContentWrapper>
+
+      {/* 안내 문구 - 버튼 위쪽 */}
+      {(currentStep === 2 || currentStep === 3) && (
+        <S.InfoText>
+          {currentStep === 2 ? t("questionModify") : t("badMoodModify")}
+        </S.InfoText>
+      )}
 
       {/* 완료 버튼 */}
       <S.SubmitButton

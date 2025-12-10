@@ -497,8 +497,8 @@ export default function DashboardPage() {
             <S.MonthDateHeader ref={dateFieldRef} onClick={handleDateFieldClick} style={{ cursor: 'pointer' }}>
               {currentYear}년 {currentMonth}월
               <S.MonthChevronIcon>
-                <svg width="4" height="7" viewBox="0 0 4 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 4L0 6L2 8" stroke="#0D0D0D" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="8" height="6" viewBox="0 0 8 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L4 4L7 1" stroke="#0D0D0D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </S.MonthChevronIcon>
             </S.MonthDateHeader>
@@ -826,13 +826,6 @@ export default function DashboardPage() {
               {/* Week 차트 - Bar Chart */}
               {selectedPeriod === "Week" && (
                 <>
-                  {/* Y축 라벨 */}
-                  <S.YAxisLabel $top={60}>100</S.YAxisLabel>
-                  <S.YAxisLabel $top={96}>80</S.YAxisLabel>
-                  <S.YAxisLabel $top={132}>60</S.YAxisLabel>
-                  <S.YAxisLabel $top={168}>40</S.YAxisLabel>
-                  <S.YAxisLabel $top={204}>20</S.YAxisLabel>
-
                   {/* X축 요일 라벨 */}
                   <S.WeekXAxisLabel $left={41}>월</S.WeekXAxisLabel>
                   <S.WeekXAxisLabel $left={86}>화</S.WeekXAxisLabel>
@@ -844,10 +837,15 @@ export default function DashboardPage() {
 
                   {/* Week 그리드 라인 */}
                   <S.WeekGridLine $top={60} $left={29} $width={298} />
+                  <S.WeekYAxisLabel $top={60} $left={8}>100</S.WeekYAxisLabel>
                   <S.WeekGridLine $top={96} $left={29} $width={298} />
+                  <S.WeekYAxisLabel $top={96} $left={8}>80</S.WeekYAxisLabel>
                   <S.WeekGridLine $top={132} $left={29} $width={298} />
+                  <S.WeekYAxisLabel $top={132} $left={8}>60</S.WeekYAxisLabel>
                   <S.WeekGridLine $top={168} $left={29} $width={298} />
+                  <S.WeekYAxisLabel $top={168} $left={8}>40</S.WeekYAxisLabel>
                   <S.WeekGridLine $top={204} $left={29} $width={298} />
+                  <S.WeekYAxisLabel $top={204} $left={8}>20</S.WeekYAxisLabel>
                   <S.WeekGridLine $top={240} $left={16} $width={311} />
 
                   {/* Bar Chart */}

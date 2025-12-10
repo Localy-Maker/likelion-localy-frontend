@@ -57,56 +57,65 @@ export const CharactersGroup = styled.div`
   transform: translateX(-50%);
   width: 280px;
   height: 120px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 0;
+  align-items: center;
+  justify-items: center;
 `;
 
 export const CharacterWrapper = styled.div`
-  position: absolute;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   /* 각 캐릭터별 위치 조정 - 2줄 배치 */
   &:nth-child(1) {
     /* 행복 - 왼쪽 위 */
-    left: 0px;
-    top: 0px;
+    grid-column: 1;
+    grid-row: 1;
     animation: float1 ${props => props.$duration || 2.5}s ease-in-out infinite;
     animation-delay: ${props => props.$delay || 0}s;
   }
   
   &:nth-child(2) {
     /* 슬픔 - 중앙 위 */
-    left: 100px;
-    top: 0px;
+    grid-column: 2;
+    grid-row: 1;
     animation: float2 ${props => props.$duration || 2.8}s ease-in-out infinite;
     animation-delay: ${props => props.$delay || 0.3}s;
   }
   
   &:nth-child(3) {
     /* 분노 - 오른쪽 위 */
-    left: 200px;
-    top: 0px;
+    grid-column: 3;
+    grid-row: 1;
     animation: float3 ${props => props.$duration || 2.2}s ease-in-out infinite;
     animation-delay: ${props => props.$delay || 0.6}s;
   }
   
   &:nth-child(4) {
     /* 우울 - 왼쪽 아래 */
-    left: 20px;
-    top: 60px;
+    grid-column: 1;
+    grid-row: 2;
     animation: float4 ${props => props.$duration || 2.6}s ease-in-out infinite;
     animation-delay: ${props => props.$delay || 0.2}s;
   }
   
   &:nth-child(5) {
     /* 중립 - 중앙 아래 */
-    left: 120px;
-    top: 65px;
+    grid-column: 2;
+    grid-row: 2;
     animation: float5 ${props => props.$duration || 2.4}s ease-in-out infinite;
     animation-delay: ${props => props.$delay || 0.4}s;
   }
   
   &:nth-child(6) {
     /* 불안 - 오른쪽 아래 */
-    left: 220px;
-    top: 65px;
+    grid-column: 3;
+    grid-row: 2;
     animation: float6 ${props => props.$duration || 2.7}s ease-in-out infinite;
     animation-delay: ${props => props.$delay || 0.5}s;
   }

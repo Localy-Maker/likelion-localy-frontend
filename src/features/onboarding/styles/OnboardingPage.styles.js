@@ -4,11 +4,13 @@ import { font } from "@/styles/font";
 export const Container = styled.div`
   position: relative;
   width: 100%;
+  max-width: 800px; /* 메인 페이지와 동일한 최대 너비 */
   min-height: 100vh;
   background: #FFFFFF;
   display: flex;
   flex-direction: column;
-  padding: 0 24px;
+  margin: 0 auto; /* 메인 페이지와 동일하게 중앙 정렬 */
+  padding: 0;
 `;
 
 export const Header = styled.div`
@@ -17,14 +19,11 @@ export const Header = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 13px 22px;
-  width: 100%;
-  max-width: 327px; /* 비밀번호 찾기 페이지와 동일한 최대 너비 */
-  height: 56px;
+  padding: 0; /* 메인 페이지 헤더와 동일하게 padding 제거 */
+  width: 100%; /* 메인 페이지 헤더와 동일하게 전체 너비 사용 */
+  height: 56px; /* 메인 페이지 헤더와 동일한 높이 */
   background: #FFFFFF;
-  border-bottom: 1px solid #F3F3F3;
-  margin-left: auto;
-  margin-right: auto;
+  border-bottom: 0.5px solid #e6e6e6; /* 메인 페이지 헤더와 동일한 border */
   position: relative;
 `;
 
@@ -42,6 +41,10 @@ export const Title = styled.h1`
 `;
 
 export const BackButton = styled.button`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 16px; /* 메인 페이지 헤더와 동일한 위치 */
   background: none;
   border: none;
   cursor: pointer;
@@ -57,6 +60,14 @@ export const BackButton = styled.button`
     width: 24px;
     height: 24px;
     color: #0D0D0D;
+  }
+  
+  &:hover {
+    opacity: 0.7;
+  }
+  
+  &:active {
+    opacity: 0.5;
   }
 `;
 
@@ -181,6 +192,7 @@ export const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  padding: 0 24px; /* Container의 padding을 ContentWrapper로 이동 */
   max-width: 350px;
   margin-left: auto;
   margin-right: auto;
@@ -233,7 +245,7 @@ export const QuestionSection = styled.div`
   flex-direction: column;
   align-items: flex-start;
   padding: 0px;
-  gap: 20px;
+  gap: 8px; /* 간격을 20px에서 8px로 줄임 */
   width: 100%;
   max-width: 331px;
   margin-top: 40px;
@@ -258,11 +270,12 @@ export const QuestionSubtitle = styled.p`
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
-  line-height: 22px;
+  line-height: 18px; /* 간격 줄이기 위해 line-height 감소 */
   letter-spacing: -0.43px;
   color: #3D3D3D;
   width: 100%;
   margin: 0;
+  margin-top: 4px; /* 위쪽 간격 최소화 */
 `;
 
 export const QuestionLimit = styled.p`
@@ -270,11 +283,12 @@ export const QuestionLimit = styled.p`
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
-  line-height: 22px;
+  line-height: 18px; /* 간격 줄이기 위해 line-height 감소 */
   letter-spacing: -0.43px;
   color: #3D3D3D;
   width: 100%;
   margin: 0;
+  margin-top: 4px; /* 위쪽 간격 최소화 */
 `;
 
 export const ActivityGrid = styled.div`
