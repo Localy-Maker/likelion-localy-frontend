@@ -395,12 +395,13 @@ const ChatPage = () => {
   const chatContentRef = useRef(null); // 스크롤을 위한 ref
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [currentChatId, setCurrentChatId] = useState("chat-1");
+  const [currentChatId, setCurrentChatId] = useState("today");
   const [userId, setUserId] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [loading, setLoading] = useState(true);
   const [chatHistories, setChatHistories] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [todayMessages, setTodayMessages] = useState([]); // 오늘 채팅 메시지 저장
   const [isTyping, setIsTyping] = useState(false);
 
   // API 데이터 변환 함수
@@ -456,21 +457,21 @@ const ChatPage = () => {
 
         // 오늘 채팅 가져오기
         const todayResponse = await getTodayChatMessages();
+        let todayMessagesData = [];
+
         if (
           todayResponse.success &&
           todayResponse.data &&
           todayResponse.data.length > 0
         ) {
-          const transformedMessages =
-            todayResponse.data.map(transformApiMessage);
-          setMessages(transformedMessages);
+          todayMessagesData = todayResponse.data.map(transformApiMessage);
         } else if (
           todayResponse.success &&
           (!todayResponse.data || todayResponse.data.length === 0)
         ) {
           // 오늘 채팅이 없으면 초기 인사 메시지만 UI에 표시
           const now = new Date();
-          setMessages([
+          todayMessagesData = [
             {
               id: "initial-greeting",
               type: "bot",
@@ -478,8 +479,12 @@ const ChatPage = () => {
               timestamp: formatTimestamp(now),
               timestampDate: now,
             },
-          ]);
+          ];
         }
+
+        // 오늘 채팅 메시지 저장
+        setTodayMessages(todayMessagesData);
+        setMessages(todayMessagesData);
 
         // 과거 채팅 가져오기 (사이드바용)
         const pastResponse = await getPastChatMessages();
@@ -562,7 +567,9 @@ const ChatPage = () => {
         console.log("💬 Final text length:", botMessage.text?.length);
       }
 
+      // messages와 todayMessages 둘 다 업데이트
       setMessages((prev) => [...prev, botMessage]);
+      setTodayMessages((prev) => [...prev, botMessage]);
     };
 
     const handleError = (error) => {
@@ -590,19 +597,10 @@ const ChatPage = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleNewChat = () => {
-    const newChatId = `chat-${Date.now()}`;
-    setCurrentChatId(newChatId);
-    const now = new Date();
-    setMessages([
-      {
-        id: 1,
-        type: "bot",
-        text: "안녕하세요! 오늘 하루는 어떠셨나요?",
-        timestamp: formatTimestamp(now),
-        timestampDate: now,
-      },
-    ]);
+  const handleBackToToday = () => {
+    // 오늘 채팅으로 돌아가기
+    setCurrentChatId("today");
+    setMessages(todayMessages);
     setSidebarOpen(false);
   };
 
@@ -629,6 +627,7 @@ const ChatPage = () => {
         timestamp: formatTimestamp(now),
       };
       setMessages((prev) => [...prev, newMessage]);
+      setTodayMessages((prev) => [...prev, newMessage]);
       setInputValue("");
 
       // WebSocket으로 메시지 전송
@@ -759,11 +758,11 @@ const ChatPage = () => {
         {/* Sidebar */}
         <Dimmed $isOpen={sidebarOpen} onClick={toggleSidebar} />
         <Sidebar $isOpen={sidebarOpen}>
-          <SidebarItem $marginBottom="27px" onClick={handleNewChat}>
+          <SidebarItem $marginBottom="27px" onClick={handleBackToToday}>
             <SidebarIconWrapper>
               <PencilIcon color="#0D0D0D" size={20} />
             </SidebarIconWrapper>
-            <SidebarText>새로운 채팅</SidebarText>
+            <SidebarText>오늘 채팅으로 돌아가기</SidebarText>
           </SidebarItem>
 
           <SidebarText
