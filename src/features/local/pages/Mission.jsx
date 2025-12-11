@@ -7,12 +7,23 @@ import MissionSummary from "@/features/local/components/mission/MissionSummary";
 import { useMissions, formatExpiresAt } from "@/features/local/hooks/useMissions";
 import { Container, ErrorMessage } from "@/features/local/styles/Mission.styles";
 import LocationError from "@/features/local/components/modal/LocationError";
+import { useGeolocation } from "@/features/local/hooks/useGeolocation";
 
 export default function MissionPage() {
     const navigate = useNavigate();
 
+    const { latitude, longitude, loading: locationLoading, error: locationError } = useGeolocation();
+
     // 미션 데이터 가져오기
-    const { pointInfo, availableMissions, completedMissions, loading, error } = useMissions();
+    const { pointInfo, availableMissions, completedMissions, loading, error } = useMissions(latitude, longitude);
+    if (locationLoading || loading) {
+        return <LoadingPage />;
+    }
+
+    if (locationError || error) {
+        return <ErrorMessage>{locationError || error}</ErrorMessage>;
+    }
+
 
     const handleUsePoints = () => {
         navigate("/local/spend-points");
