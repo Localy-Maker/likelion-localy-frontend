@@ -8,8 +8,36 @@ export const Page = styled.main`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 80px;
+  padding-bottom: 96px;
   background: ${colors.gray[100]};
+`;
+
+export const FloatingSaveButton = styled.button`
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 343px;
+  height: 52px;
+  border: none;
+  border-radius: 12px;
+  background: ${colors.blue[50]};
+  color: ${colors.gray[100]};
+  ${font.semibold16}
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(84, 130, 255, 0.35);
+  z-index: 1000;
+  animation: floatIn 0.18s ease-out;
+
+  &:hover {
+    opacity: 0.92;
+  }
+
+  @keyframes floatIn {
+    from { transform: translate(-50%, 100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+  }
 `;
 
 export const TopChipRow = styled.div`

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import Header from "@/shared/components/Header/Header";
-import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
 import CharacterPreview from "@/features/character/components/CharacterPreview";
 import CategoryTabs from "@/features/character/components/CategoryTabs";
 import ItemGrid from "@/features/character/components/ItemGrid";
@@ -13,6 +12,7 @@ import {
   CharacterSelectChip,
   PointsChip,
   PreviewArea,
+  FloatingSaveButton,
 } from "@/features/character/styles/CharacterShop.styles";
 import { useCharacterShopStore } from "@/shared/stores/characterShopStore";
 import { useUserStore } from "@/shared/stores/userStore";
@@ -44,6 +44,9 @@ export default function CharacterShopPage() {
   const selectCharacter = useCharacterShopStore((s) => s.selectCharacter);
   const tryOnItem = useCharacterShopStore((s) => s.tryOnItem);
   const takeOff = useCharacterShopStore((s) => s.takeOff);
+  const resetDraft = useCharacterShopStore((s) => s.resetDraft);
+  const commitDraft = useCharacterShopStore((s) => s.commitDraft);
+  const isDirty = useCharacterShopStore((s) => s.isDirty);
 
   // 페이지 진입 시 userStore (persist 된 값) 으로 store 동기화. 본체가 비어있으면 기본값 happiness.
   useEffect(() => {
@@ -54,19 +57,10 @@ export default function CharacterShopPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 변경 사항 자동 적용 (Figma 명세: 저장 버튼 없이 클릭 즉시 반영)
-  useEffect(() => {
-    if (!draftCharacterId) return;
-    setEquipped({
-      characterId: draftCharacterId,
-      equip: draftEquip,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draftCharacterId, draftEquip]);
+  const dirty = isDirty();
 
   const itemsForTab = useMemo(() => {
     if (tab === "owned") {
-      // 보유 + default 아이템을 카테고리별로 모아서 평탄화
       const allCategories = ["background", "hat", "accessory", "etc"];
       return allCategories.flatMap((cat) =>
         (SHOP_ITEMS[cat] ?? []).filter((item) => isItemOwned(item.id, ownedItems)),
@@ -119,9 +113,28 @@ export default function CharacterShopPage() {
     setCharacterSheetOpen(false);
   };
 
+  const handleSave = () => {
+    commitDraft();
+    setEquipped({
+      characterId: draftCharacterId,
+      equip: draftEquip,
+    });
+  };
+
+  const handleBack = () => {
+    if (dirty) {
+      const confirmLeave = window.confirm(
+        "저장하지 않은 변경 사항이 있어요. 그래도 나갈까요?",
+      );
+      if (!confirmLeave) return;
+      resetDraft();
+    }
+    navigate(-1);
+  };
+
   return (
     <>
-      <Header text="MY LOCALY" onLeftClick={() => navigate(-1)} rightIcon={null} />
+      <Header text="MY LOCALY" onLeftClick={handleBack} rightIcon={null} />
       <Page>
         <TopChipRow>
           <CharacterSelectChip
@@ -134,7 +147,7 @@ export default function CharacterShopPage() {
         </TopChipRow>
 
         <PreviewArea>
-          <CharacterPreview characterId={draftCharacterId} />
+          <CharacterPreview characterId={draftCharacterId} equip={draftEquip} />
         </PreviewArea>
 
         <CategoryTabs active={tab} onChange={setTab} />
@@ -147,6 +160,12 @@ export default function CharacterShopPage() {
           hidePriceWhenOwned={tab === "owned"}
         />
       </Page>
+
+      {dirty ? (
+        <FloatingSaveButton type="button" onClick={handleSave}>
+          저장하기
+        </FloatingSaveButton>
+      ) : null}
 
       <PurchaseSheet
         item={purchaseItem}
@@ -162,8 +181,6 @@ export default function CharacterShopPage() {
         onSelect={handleCharacterChange}
         onClose={() => setCharacterSheetOpen(false)}
       />
-
-      <BottomNavigation />
     </>
   );
 }

@@ -3,39 +3,28 @@ import { useNavigate } from "react-router";
 import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
 
-const Wrapper = styled.div`
+const Card = styled.div`
   position: relative;
-  overflow: hidden;
+  width: 100%;
+  min-height: 280px;
+  border: 1px solid ${colors.gray[300]};
   border-radius: 8px;
-`;
-
-const BlurredContent = styled.div`
-  filter: blur(14px);
-  transform: scale(1.05);
-  pointer-events: none;
-  user-select: none;
-  opacity: 0.45;
-`;
-
-const Overlay = styled.div`
-  position: absolute;
-  inset: 0;
+  background: ${colors.gray[100]};
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 12px;
+  padding: 32px 24px;
   text-align: center;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(2px);
 `;
 
 const PromptText = styled.p`
   ${font.semibold16}
   color: ${colors.blue[70]};
   margin: 0;
-  white-space: pre-line;
+  text-align: center;
+  line-height: 1.4;
 `;
 
 const PromptLink = styled.button`
@@ -47,6 +36,7 @@ const PromptLink = styled.button`
   text-decoration: underline;
   padding: 4px 8px;
   letter-spacing: -0.43px;
+  text-align: center;
 
   &:hover {
     opacity: 0.85;
@@ -54,21 +44,24 @@ const PromptLink = styled.button`
 `;
 
 /**
- * 비프리미엄 사용자에게 차트 영역을 블러 처리하고 프리미엄 유도 CTA 를 오버레이.
- * @param {boolean} active - true 면 게이트 활성 (블러+오버레이), false 면 children 그대로
+ * 비프리미엄 사용자에게 차트 대신 안내 카드를 노출.
+ * 블러 처리가 차트의 절대 위치 요소들로 인해 깨지는 문제를 회피하기 위해
+ * 차트를 렌더하지 않고 정적 placeholder 카드로 대체한다.
+ *
+ * @param {boolean} active - true 면 게이트 활성 (placeholder), false 면 children 그대로
  */
 export default function PremiumGate({ active, children }) {
   const navigate = useNavigate();
   if (!active) return children;
   return (
-    <Wrapper>
-      <BlurredContent aria-hidden="true">{children}</BlurredContent>
-      <Overlay>
-        <PromptText>{"프리미엄 플랜으로\n더 많은 정보를 볼 수 있어요"}</PromptText>
-        <PromptLink type="button" onClick={() => navigate("/premium")}>
-          프리미엄 플랜 보기
-        </PromptLink>
-      </Overlay>
-    </Wrapper>
+    <Card>
+      <PromptText>
+        프리미엄 플랜으로
+        <br />더 많은 정보를 볼 수 있어요
+      </PromptText>
+      <PromptLink type="button" onClick={() => navigate("/premium")}>
+        프리미엄 플랜 보기
+      </PromptLink>
+    </Card>
   );
 }
