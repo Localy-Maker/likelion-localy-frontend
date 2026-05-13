@@ -116,7 +116,10 @@ export const ProfileIcon = styled.button`
 `;
 
 // 프로필 원의 하단 경계에 살짝 걸치도록 음의 margin-top 으로 끌어올린다 (Figma 의 Component 18 위치 기준).
+// z-index 로 프로필 버튼보다 위에 떠 있도록 — 배지 영역 클릭이 프로필 네비게이션을 트리거하지 않게 함.
 export const PlanBadge = styled.span`
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
