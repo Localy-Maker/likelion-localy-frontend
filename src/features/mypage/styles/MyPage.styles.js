@@ -90,7 +90,7 @@ export const ProfileCard = styled.div`
   padding: 12px 0;
 `;
 
-export const ProfileIcon = styled.div`
+export const ProfileIcon = styled.button`
   position: relative;
   width: 113px;
   height: 115px;
@@ -105,6 +105,31 @@ export const ProfileIcon = styled.div`
   justify-content: center;
   text-align: center;
   color: #E0E0E0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.85;
+  }
+`;
+
+export const PlanBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: ${(p) => (p.$isPremium ? "#1976D2" : "#828282")};
+  color: #FFFFFF;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: -0.43px;
 `;
 
 export const ProfileName = styled.div`
