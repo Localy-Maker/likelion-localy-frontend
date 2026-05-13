@@ -134,26 +134,37 @@ export const SubscribeButton = styled.button`
   letter-spacing: -0.26px;
 `;
 
-export const ModalBackdrop = styled.div`
+export const SheetBackdrop = styled.div`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   z-index: 1100;
-  padding: 20px;
+  animation: fadeIn 0.18s ease-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 `;
 
-export const ModalCard = styled.div`
+export const Sheet = styled.div`
   width: 100%;
-  max-width: 320px;
+  max-width: 800px;
   background: ${colors.gray[100]};
-  border-radius: 12px;
-  padding: 24px 20px;
+  border-radius: 16px 16px 0 0;
+  padding: 24px 24px 32px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  animation: slideUp 0.22s ease-out;
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
 `;
 
 export const ModalTitle = styled.div`

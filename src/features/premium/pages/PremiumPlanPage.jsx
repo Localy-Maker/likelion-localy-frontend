@@ -112,8 +112,12 @@ export default function PremiumPlanPage() {
       </S.Container>
 
       {confirmOpen && plan ? (
-        <S.ModalBackdrop role="dialog" aria-modal="true">
-          <S.ModalCard>
+        <S.SheetBackdrop
+          role="dialog"
+          aria-modal="true"
+          onClick={() => !purchasing && setConfirmOpen(false)}
+        >
+          <S.Sheet onClick={(e) => e.stopPropagation()}>
             <S.ModalTitle>{plan.days}일권 프리미엄 플랜을 구매할까요?</S.ModalTitle>
             <S.BenefitList>
               <S.BenefitItem>업데이트되는 모든 심리 분석 리포트 잠금해제</S.BenefitItem>
@@ -129,13 +133,20 @@ export default function PremiumPlanPage() {
             >
               {plan.price} P
             </S.ModalConfirmButton>
-          </S.ModalCard>
-        </S.ModalBackdrop>
+          </S.Sheet>
+        </S.SheetBackdrop>
       ) : null}
 
       {successOpen && plan ? (
-        <S.ModalBackdrop role="dialog" aria-modal="true">
-          <S.ModalCard>
+        <S.SheetBackdrop
+          role="dialog"
+          aria-modal="true"
+          onClick={() => {
+            setSuccessOpen(false);
+            navigate("/mypage");
+          }}
+        >
+          <S.Sheet onClick={(e) => e.stopPropagation()}>
             <S.ModalTitle>구매 성공!</S.ModalTitle>
             <S.ModalNote>오늘부터 {plan.days}일간 프리미엄 플랜이 적용됩니다.</S.ModalNote>
             <S.ModalConfirmButton
@@ -147,8 +158,8 @@ export default function PremiumPlanPage() {
             >
               확인
             </S.ModalConfirmButton>
-          </S.ModalCard>
-        </S.ModalBackdrop>
+          </S.Sheet>
+        </S.SheetBackdrop>
       ) : null}
 
       <BottomNavigation />
