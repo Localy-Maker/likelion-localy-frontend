@@ -5,12 +5,16 @@ import { font } from "@/styles/font";
 
 const Wrapper = styled.div`
   position: relative;
+  overflow: hidden;
+  border-radius: 8px;
 `;
 
 const BlurredContent = styled.div`
-  filter: blur(6px);
+  filter: blur(14px);
+  transform: scale(1.05);
   pointer-events: none;
   user-select: none;
+  opacity: 0.45;
 `;
 
 const Overlay = styled.div`
@@ -23,6 +27,8 @@ const Overlay = styled.div`
   gap: 12px;
   text-align: center;
   padding: 16px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(2px);
 `;
 
 const PromptText = styled.p`
