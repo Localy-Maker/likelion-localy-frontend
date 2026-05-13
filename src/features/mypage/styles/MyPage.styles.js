@@ -94,7 +94,7 @@ export const ProfileIcon = styled.button`
   position: relative;
   width: 113px;
   height: 115px;
-  margin-bottom: 10px;
+  margin-bottom: 0;
   font-family: 'SF Pro';
   font-style: normal;
   font-weight: 400;
@@ -115,11 +115,13 @@ export const ProfileIcon = styled.button`
   }
 `;
 
+// 프로필 원의 하단 경계에 살짝 걸치도록 음의 margin-top 으로 끌어올린다 (Figma 의 Component 18 위치 기준).
 export const PlanBadge = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 6px;
+  margin-top: -14px;
+  margin-bottom: 12px;
   padding: 3px 10px;
   border-radius: 4px;
   background: ${(p) => (p.$isPremium ? "#1976D2" : "#828282")};
