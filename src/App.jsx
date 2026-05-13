@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/shared/api/queryClient";
 import { GlobalStyle } from "@/styles/global-style";
 import GlobalLayout from "@/shared/components/global-layout";
 import { LanguageProvider } from "@/contexts/LanguageContext.jsx";
@@ -51,7 +53,7 @@ function SplashHandler() {
 
 function App() {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <GlobalStyle />
       <LanguageProvider>
         <BrowserRouter>
@@ -81,7 +83,7 @@ function App() {
           </Routes>
         </BrowserRouter>
       </LanguageProvider>
-    </>
+    </QueryClientProvider>
   );
 }
 
