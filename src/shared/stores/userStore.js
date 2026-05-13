@@ -27,6 +27,8 @@ export const useUserStore = create(
       // TODO: 백엔드 캐릭터 API 연결 시 setAuth 시점에 서버 값을 hydrate.
       equippedCharacter: null,
       equippedItems: emptyEquip(),
+      // 보유 아이템 ID 목록. "default" 카테고리 아이템은 항상 보유로 간주하므로 추적 대상 외.
+      ownedItems: [],
 
       setAuth: ({ accessToken, refreshToken, userId, email }) =>
         set({ accessToken, refreshToken, userId, email }),
@@ -43,6 +45,12 @@ export const useUserStore = create(
           equippedCharacter: characterId,
           equippedItems: { ...emptyEquip(), ...(equip ?? {}) },
         }),
+      addOwnedItem: (itemId) =>
+        set((s) =>
+          s.ownedItems.includes(itemId)
+            ? s
+            : { ownedItems: [...s.ownedItems, itemId] },
+        ),
       clear: () =>
         set({
           accessToken: null,
@@ -56,6 +64,7 @@ export const useUserStore = create(
           points: 0,
           equippedCharacter: null,
           equippedItems: emptyEquip(),
+          ownedItems: [],
         }),
     }),
     { name: "localy-user" },

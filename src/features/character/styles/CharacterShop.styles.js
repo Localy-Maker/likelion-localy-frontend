@@ -122,6 +122,35 @@ export const TakeOffCard = styled(ItemCard)`
   color: ${colors.gray[600]};
 `;
 
+export const ItemImage = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: ${(p) => (p.$locked ? 0.55 : 1)};
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+`;
+
+export const PriceBadge = styled.span`
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(13, 13, 13, 0.6);
+  color: ${colors.gray[100]};
+  font-size: 10px;
+  font-weight: 500;
+  pointer-events: none;
+`;
+
 export const ActionBar = styled.div`
   position: fixed;
   bottom: 0;

@@ -29,6 +29,14 @@ const shadowModules = import.meta.glob("./shadows/*.svg", {
   import: "default",
 });
 
+// 카테고리별 기본 가격 (P). 백엔드 가격 정책 도입 시 서버 값으로 교체 예정.
+const CATEGORY_PRICE = {
+  hat: 20,
+  accessory: 20,
+  background: 30,
+  etc: 10,
+};
+
 function toItems(modules, category) {
   return Object.entries(modules)
     .map(([path, src]) => {
@@ -42,6 +50,7 @@ function toItems(modules, category) {
         category,
         emotion,
         src,
+        price: emotion === "default" ? 0 : CATEGORY_PRICE[category] ?? 10,
       };
     })
     .sort((a, b) => a.id.localeCompare(b.id));
@@ -81,4 +90,15 @@ export function filterItemsByEmotion(category, emotion) {
   return items.filter(
     (item) => item.emotion === emotion || item.emotion === "default",
   );
+}
+
+/**
+ * 아이템 보유 여부. default 카테고리는 항상 보유로 간주한다.
+ */
+export function isItemOwned(itemId, ownedItems) {
+  if (!itemId) return true;
+  const item = getItemById(itemId);
+  if (!item) return false;
+  if (item.emotion === "default" || item.price === 0) return true;
+  return Array.isArray(ownedItems) && ownedItems.includes(itemId);
 }

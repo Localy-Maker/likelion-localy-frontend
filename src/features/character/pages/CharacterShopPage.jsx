@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import styled from "styled-components";
 import Header from "@/shared/components/Header/Header";
 import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
 import CharacterPreview from "@/features/character/components/CharacterPreview";
 import CategoryTabs from "@/features/character/components/CategoryTabs";
 import ItemGrid from "@/features/character/components/ItemGrid";
+import PurchaseSheet from "@/features/character/components/PurchaseSheet";
 import {
   Page,
   BodySelectorRow,
@@ -15,7 +17,14 @@ import {
 } from "@/features/character/styles/CharacterShop.styles";
 import { useCharacterShopStore } from "@/shared/stores/characterShopStore";
 import { useUserStore } from "@/shared/stores/userStore";
-import { EMOTIONS, filterItemsByEmotion } from "@/assets/character";
+import {
+  EMOTIONS,
+  filterItemsByEmotion,
+  getItemById,
+  isItemOwned,
+} from "@/assets/character";
+import { colors } from "@/styles/colors";
+import { font } from "@/styles/font";
 
 const EMOTION_LABEL = {
   happiness: "행복",
@@ -26,13 +35,35 @@ const EMOTION_LABEL = {
   neutral: "중립",
 };
 
+const PointsBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 8px 16px;
+  ${font.medium14}
+  color: ${colors.gray[900]};
+  background: ${colors.gray[100]};
+`;
+
+const PointsValue = styled.span`
+  ${font.semibold16}
+  color: ${colors.blue[50]};
+`;
+
 export default function CharacterShopPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("body");
+  const [purchaseItem, setPurchaseItem] = useState(null);
+  const [purchasing, setPurchasing] = useState(false);
 
   const equippedCharacter = useUserStore((s) => s.equippedCharacter);
   const equippedItems = useUserStore((s) => s.equippedItems);
   const setEquipped = useUserStore((s) => s.setEquipped);
+  const points = useUserStore((s) => s.points);
+  const setPoints = useUserStore((s) => s.setPoints);
+  const ownedItems = useUserStore((s) => s.ownedItems);
+  const addOwnedItem = useUserStore((s) => s.addOwnedItem);
 
   const draftCharacterId = useCharacterShopStore((s) => s.draftCharacterId);
   const draftEquip = useCharacterShopStore((s) => s.draftEquip);
@@ -59,6 +90,30 @@ export default function CharacterShopPage() {
   }, [tab, draftCharacterId]);
 
   const dirty = isDirty();
+
+  const handleItemPick = (id) => {
+    if (isItemOwned(id, ownedItems)) {
+      tryOnItem(tab, id);
+      return;
+    }
+    // 미보유 → 구매 시트 오픈
+    setPurchaseItem(getItemById(id));
+  };
+
+  const handlePurchaseConfirm = async () => {
+    if (!purchaseItem || purchasing) return;
+    if (points < purchaseItem.price) return;
+    setPurchasing(true);
+    try {
+      // TODO: 백엔드 캐릭터 API 추가 시 POST /api/users/me/character/items 로 교체.
+      setPoints(points - purchaseItem.price);
+      addOwnedItem(purchaseItem.id);
+      tryOnItem(purchaseItem.category, purchaseItem.id);
+      setPurchaseItem(null);
+    } finally {
+      setPurchasing(false);
+    }
+  };
 
   const handleSave = () => {
     commitDraft();
@@ -88,6 +143,9 @@ export default function CharacterShopPage() {
         rightIcon={null}
       />
       <Page>
+        <PointsBar>
+          보유 포인트 <PointsValue>{points}</PointsValue> P
+        </PointsBar>
         <CharacterPreview
           characterId={draftCharacterId}
           equip={draftEquip}
@@ -111,7 +169,8 @@ export default function CharacterShopPage() {
           <ItemGrid
             items={itemsForTab}
             selectedId={draftEquip?.[tab]}
-            onPick={(id) => tryOnItem(tab, id)}
+            ownedItems={ownedItems}
+            onPick={handleItemPick}
             onTakeOff={() => takeOff(tab)}
           />
         )}
@@ -125,6 +184,15 @@ export default function CharacterShopPage() {
           </SaveButton>
         </ActionBar>
       </Page>
+
+      <PurchaseSheet
+        item={purchaseItem}
+        balance={points}
+        loading={purchasing}
+        onConfirm={handlePurchaseConfirm}
+        onClose={() => setPurchaseItem(null)}
+      />
+
       <BottomNavigation />
     </>
   );
