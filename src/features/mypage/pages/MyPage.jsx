@@ -188,6 +188,9 @@ export default function MyPage() {
         <S.ProfileEmail>{userData?.email || ""}</S.ProfileEmail>
         
         <S.ActionButtons>
+          <S.ActionButton type="button" onClick={() => navigate("/character")}>
+            캐릭터 꾸미기
+          </S.ActionButton>
           <S.ActionButton type="button" onClick={() => navigate("/mypage/edit")}>
             회원 정보 수정
           </S.ActionButton>

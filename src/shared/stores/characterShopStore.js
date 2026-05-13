@@ -1,13 +1,15 @@
 import { create } from "zustand";
 
-const CATEGORIES = ["top", "background", "hat", "accessory", "etc"];
+// Drive 에셋과 정렬: hats / accessories / backgrounds / etc 4 카테고리.
+// 본체(감정 캐릭터)는 별도 `characterId` 로 관리한다.
+export const ITEM_CATEGORIES = ["background", "hat", "accessory", "etc"];
 
 const emptyEquip = () =>
-  CATEGORIES.reduce((acc, c) => ((acc[c] = null), acc), {});
+  ITEM_CATEGORIES.reduce((acc, c) => ((acc[c] = null), acc), {});
 
 export const useCharacterShopStore = create((set, get) => ({
-  categories: CATEGORIES,
-  activeCategory: "top",
+  categories: ITEM_CATEGORIES,
+  activeCategory: "hat",
 
   savedCharacterId: null,
   savedEquip: emptyEquip(),
@@ -46,6 +48,6 @@ export const useCharacterShopStore = create((set, get) => ({
   isDirty: () => {
     const s = get();
     if (s.draftCharacterId !== s.savedCharacterId) return true;
-    return CATEGORIES.some((c) => s.draftEquip[c] !== s.savedEquip[c]);
+    return ITEM_CATEGORIES.some((c) => s.draftEquip[c] !== s.savedEquip[c]);
   },
 }));

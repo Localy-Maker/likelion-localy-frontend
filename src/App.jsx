@@ -26,6 +26,7 @@ import ChallengePage from "@/features/local/pages/Challenge";
 import SpendPointsPage from "@/features/local/pages/SpendPoints";
 import BookmarkPage from "@/features/local/pages/Bookmark";
 import NotificationPage from "@/features/notification/pages/NotificationPage";
+import CharacterShopPage from "@/features/character/pages/CharacterShopPage";
 
 /**
  * 스플래시 페이지를 처리하는 컴포넌트
@@ -80,6 +81,7 @@ function App() {
                 path="/local/mission/calendar/:date"
                 element={<MissionCalendarDetailPage />}
               />
+              <Route path="/character" element={<CharacterShopPage />} />
               <Route path="/local/challenge/:id" element={<ChallengePage />} />
               <Route path="/local/spend-points" element={<SpendPointsPage />} />
               <Route path="/local/bookmark" element={<BookmarkPage />} />
