@@ -1,20 +1,19 @@
 import {
-  TabRow,
+  TabsBlock,
   TabButton,
 } from "@/features/character/styles/CharacterShop.styles";
 
-// "body" 는 감정 본체 탭 — store 의 ITEM_CATEGORIES 와 별개로 UI 에서만 다룬다.
 const TAB_DEFS = [
-  { key: "body", label: "본체" },
-  { key: "hat", label: "모자" },
-  { key: "accessory", label: "악세사리" },
+  { key: "owned", label: "보유 아이템" },
   { key: "background", label: "배경" },
+  { key: "hat", label: "모자" },
+  { key: "accessory", label: "악세서리" },
   { key: "etc", label: "기타" },
 ];
 
 export default function CategoryTabs({ active, onChange }) {
   return (
-    <TabRow>
+    <TabsBlock>
       {TAB_DEFS.map((tab) => (
         <TabButton
           key={tab.key}
@@ -25,6 +24,6 @@ export default function CategoryTabs({ active, onChange }) {
           {tab.label}
         </TabButton>
       ))}
-    </TabRow>
+    </TabsBlock>
   );
 }

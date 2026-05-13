@@ -8,118 +8,117 @@ export const Page = styled.main`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 96px;
+  padding-bottom: 80px;
   background: ${colors.gray[100]};
 `;
 
-export const PreviewSection = styled.section`
-  position: relative;
+export const TopChipRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px 0;
+`;
+
+export const CharacterSelectChip = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  background: ${colors.blue[30]};
+  color: ${colors.gray[100]};
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  ${font.medium14}
+`;
+
+export const PointsChip = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  background: ${colors.blue[40]};
+  color: ${colors.gray[100]};
+  border-radius: 8px;
+  ${font.medium14}
+`;
+
+export const PreviewArea = styled.div`
   width: 100%;
-  aspect-ratio: 1.05;
-  background: ${colors.blue[10]};
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  padding: 16px;
 `;
 
-export const PreviewLayer = styled.div`
-  position: absolute;
-  inset: 0;
+export const TabsBlock = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  pointer-events: none;
-
-  img {
-    max-width: 70%;
-    max-height: 70%;
-    object-fit: contain;
-  }
-`;
-
-export const PreviewBackgroundLayer = styled(PreviewLayer)`
-  img {
-    max-width: 100%;
-    max-height: 100%;
-  }
-`;
-
-export const TabRow = styled.div`
-  display: flex;
-  gap: 0;
-  background: ${colors.gray[100]};
-  border-bottom: 1px solid ${colors.gray[300]};
+  padding: 0 16px;
+  border-bottom: 8px solid ${colors.gray[200]};
 `;
 
 export const TabButton = styled.button`
   flex: 1;
-  padding: 14px 8px;
-  ${font.medium14}
-  color: ${(p) => (p.$active ? colors.blue[50] : colors.gray[600])};
+  padding: 12px 4px;
   background: none;
   border: none;
-  border-bottom: 2px solid
-    ${(p) => (p.$active ? colors.blue[50] : "transparent")};
   cursor: pointer;
-  transition: color 0.15s;
-`;
+  ${font.medium14}
+  color: ${(p) => (p.$active ? colors.gray[700] : colors.gray[500])};
+  position: relative;
 
-export const BodySelectorRow = styled.div`
-  display: flex;
-  gap: 8px;
-  padding: 12px 16px;
-  overflow-x: auto;
-
-  &::-webkit-scrollbar {
-    display: none;
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: ${(p) => (p.$active ? "40px" : "0")};
+    height: 4px;
+    border-radius: 50px;
+    background: ${colors.gray[700]};
+    transition: width 0.15s;
   }
-`;
-
-export const BodyChip = styled.button`
-  flex: 0 0 auto;
-  padding: 6px 12px;
-  border-radius: 16px;
-  ${font.medium12}
-  background: ${(p) => (p.$active ? colors.blue[50] : colors.gray[200])};
-  color: ${(p) => (p.$active ? colors.gray[100] : colors.gray[900])};
-  border: none;
-  cursor: pointer;
 `;
 
 export const ItemGridWrapper = styled.section`
   padding: 16px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 16px;
+  row-gap: 24px;
+`;
+
+export const ItemSlot = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
 `;
 
 export const ItemCard = styled.button`
   position: relative;
+  width: 100%;
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 16px;
   background: ${colors.gray[200]};
   border: 2px solid
     ${(p) => (p.$selected ? colors.blue[50] : "transparent")};
   cursor: pointer;
-  padding: 8px;
+  padding: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: border-color 0.15s;
 
   img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 80%;
+    max-height: 80%;
     object-fit: contain;
   }
-`;
-
-export const TakeOffCard = styled(ItemCard)`
-  background: ${colors.gray[100]};
-  border: 2px dashed ${colors.gray[400]};
-  ${font.regular12}
-  color: ${colors.gray[600]};
 `;
 
 export const ItemImage = styled.div`
@@ -138,55 +137,16 @@ export const ItemImage = styled.div`
   }
 `;
 
-export const PriceBadge = styled.span`
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  padding: 2px 6px;
-  border-radius: 8px;
-  background: rgba(13, 13, 13, 0.6);
-  color: ${colors.gray[100]};
-  font-size: 10px;
-  font-weight: 500;
-  pointer-events: none;
-`;
-
-export const ActionBar = styled.div`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 12px 16px;
-  background: ${colors.gray[100]};
-  border-top: 1px solid ${colors.gray[200]};
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-`;
-
-export const ResetButton = styled.button`
-  flex: 0 0 30%;
-  padding: 12px;
-  border-radius: 8px;
-  background: ${colors.gray[200]};
-  color: ${colors.gray[900]};
-  border: none;
+export const ItemPrice = styled.span`
   ${font.medium14}
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+  color: ${colors.gray[800]};
+  padding-left: 4px;
 `;
 
-export const SaveButton = styled.button`
-  flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  background: ${(p) => (p.disabled ? colors.gray[300] : colors.blue[50])};
-  color: ${colors.gray[100]};
-  border: none;
-  ${font.medium14}
-  cursor: ${(p) => (p.disabled ? "not-allowed" : "pointer")};
+export const EmptyMessage = styled.div`
+  grid-column: 1 / -1;
+  text-align: center;
+  ${font.regular14}
+  color: ${colors.gray[600]};
+  padding: 40px 16px;
 `;

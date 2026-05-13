@@ -1,70 +1,29 @@
-import { useMemo } from "react";
-import {
-  PreviewSection,
-  PreviewLayer,
-  PreviewBackgroundLayer,
-} from "@/features/character/styles/CharacterShop.styles";
+import styled from "styled-components";
 import { renderEmotionCharacter } from "@/shared/utils/emotionCharacters";
-import { getItemById, SHADOW_CHARACTERS } from "@/assets/character";
+
+const PreviewBox = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+`;
+
+const Scale = styled.div`
+  transform: scale(5);
+  transform-origin: center;
+`;
 
 /**
- * 본체(감정 캐릭터) + 배경 + 모자 + 악세사리 + 기타 를 레이어로 합성해 미리보기.
- *
- * @param {object} props
- * @param {string|null} props.characterId - 감정 키 (happiness, anger, ...)
- * @param {{background, hat, accessory, etc}} props.equip - 카테고리별 아이템 id
+ * 캐릭터 미리보기 — Figma 명세에 따라 작은 공간(약 95×80 본체 SVG)으로 렌더.
+ * 아이템 SVG 를 별도로 레이어링하지 않고 본체 감정 캐릭터만 렌더한다.
+ * 아이템 적용 상태는 상점 그리드의 selected 표시로 확인한다.
  */
-export default function CharacterPreview({ characterId, equip }) {
-  const background = useMemo(
-    () => getItemById(equip?.background),
-    [equip?.background],
-  );
-  const hat = useMemo(() => getItemById(equip?.hat), [equip?.hat]);
-  const accessory = useMemo(
-    () => getItemById(equip?.accessory),
-    [equip?.accessory],
-  );
-  const etc = useMemo(() => getItemById(equip?.etc), [equip?.etc]);
-
-  // 본체는 감정 SVG 또는 shadow 변형. characterId 가 없으면 happiness 기본.
+export default function CharacterPreview({ characterId }) {
   const emotion = characterId ?? "happiness";
-  const shadowIdx = SHADOW_CHARACTERS.length ? 0 : null;
-
   return (
-    <PreviewSection>
-      {background ? (
-        <PreviewBackgroundLayer>
-          <img src={background.src} alt="" />
-        </PreviewBackgroundLayer>
-      ) : null}
-
-      <PreviewLayer>
-        <div style={{ transform: "scale(6)", transformOrigin: "center" }}>
-          {renderEmotionCharacter(emotion) || (
-            shadowIdx != null ? (
-              <img src={SHADOW_CHARACTERS[shadowIdx].src} alt="" />
-            ) : null
-          )}
-        </div>
-      </PreviewLayer>
-
-      {accessory ? (
-        <PreviewLayer>
-          <img src={accessory.src} alt="" />
-        </PreviewLayer>
-      ) : null}
-
-      {hat ? (
-        <PreviewLayer style={{ alignItems: "flex-start", paddingTop: "8%" }}>
-          <img src={hat.src} alt="" />
-        </PreviewLayer>
-      ) : null}
-
-      {etc ? (
-        <PreviewLayer>
-          <img src={etc.src} alt="" />
-        </PreviewLayer>
-      ) : null}
-    </PreviewSection>
+    <PreviewBox>
+      <Scale>{renderEmotionCharacter(emotion)}</Scale>
+    </PreviewBox>
   );
 }

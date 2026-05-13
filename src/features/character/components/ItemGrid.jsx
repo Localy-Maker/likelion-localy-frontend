@@ -1,48 +1,57 @@
 import {
   ItemGridWrapper,
+  ItemSlot,
   ItemCard,
   ItemImage,
-  PriceBadge,
-  TakeOffCard,
+  ItemPrice,
+  EmptyMessage,
 } from "@/features/character/styles/CharacterShop.styles";
 import { isItemOwned } from "@/assets/character";
 
 /**
- * 카테고리별 아이템 4열 그리드.
- * 첫 칸은 "벗기" (장착 해제). 그 다음부터 실제 아이템.
- * 미보유 아이템은 흐리게 표시되고 가격 뱃지가 노출된다.
+ * 카테고리별 아이템 3열 그리드.
+ * 각 카드 아래에 가격 텍스트를 표시한다. 카드 클릭 시 onPick(id) 호출 — 동일 id 재클릭 시 해제는 부모에서 처리.
+ *
+ * @param {object} props
+ * @param {Array} props.items - 표시할 아이템 목록
+ * @param {string|null} props.selectedId - 현재 장착된 아이템 id
+ * @param {Array} props.ownedItems - 보유 아이템 id 배열
+ * @param {function} props.onPick - 아이템 클릭 시 호출
+ * @param {boolean} [props.hidePriceWhenOwned=true] - 보유 아이템 탭에서는 가격을 숨김
  */
 export default function ItemGrid({
   items,
   selectedId,
   ownedItems,
   onPick,
-  onTakeOff,
+  hidePriceWhenOwned = true,
 }) {
+  if (!items?.length) {
+    return (
+      <ItemGridWrapper>
+        <EmptyMessage>아이템이 없어요</EmptyMessage>
+      </ItemGridWrapper>
+    );
+  }
+
   return (
     <ItemGridWrapper>
-      <TakeOffCard
-        type="button"
-        $selected={!selectedId}
-        onClick={onTakeOff}
-        aria-label="장착 해제"
-      >
-        벗기
-      </TakeOffCard>
       {items.map((item) => {
         const owned = isItemOwned(item.id, ownedItems);
+        const showPrice = !(owned && hidePriceWhenOwned);
         return (
-          <ItemCard
-            key={item.id}
-            type="button"
-            $selected={selectedId === item.id}
-            onClick={() => onPick(item.id)}
-          >
-            <ItemImage $locked={!owned}>
-              <img src={item.src} alt={item.id} />
-            </ItemImage>
-            {!owned ? <PriceBadge>{item.price}P</PriceBadge> : null}
-          </ItemCard>
+          <ItemSlot key={item.id}>
+            <ItemCard
+              type="button"
+              $selected={selectedId === item.id}
+              onClick={() => onPick(item.id)}
+            >
+              <ItemImage $locked={!owned}>
+                <img src={item.src} alt={item.id} />
+              </ItemImage>
+            </ItemCard>
+            {showPrice ? <ItemPrice>{item.price} P</ItemPrice> : null}
+          </ItemSlot>
         );
       })}
     </ItemGridWrapper>
