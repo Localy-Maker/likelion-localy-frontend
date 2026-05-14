@@ -52,12 +52,16 @@ export const CharacterSelectChip = styled.button`
   align-items: center;
   justify-content: center;
   padding: 6px 16px;
-  background: ${colors.blue[30]};
+  background: ${colors.blue[50]};
   color: ${colors.gray[100]};
   border: none;
   border-radius: 8px;
   cursor: pointer;
   ${font.medium14}
+
+  &:hover {
+    opacity: 0.92;
+  }
 `;
 
 export const PointsChip = styled.div`
@@ -65,7 +69,7 @@ export const PointsChip = styled.div`
   align-items: center;
   justify-content: center;
   padding: 6px 16px;
-  background: ${colors.blue[40]};
+  background: ${colors.blue[50]};
   color: ${colors.gray[100]};
   border-radius: 8px;
   ${font.medium14}
