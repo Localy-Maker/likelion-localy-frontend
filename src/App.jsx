@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/shared/api/queryClient";
 import { GlobalStyle } from "@/styles/global-style";
 import GlobalLayout from "@/shared/components/global-layout";
 import { LanguageProvider } from "@/contexts/LanguageContext.jsx";
@@ -19,10 +21,12 @@ import ChatPage from "@/features/chat/pages/ChatPage";
 import LocalPage from "@/features/local/pages/Local";
 import LocalDetailPage from "@/features/local/pages/LocalDetail";
 import MissionPage from "@/features/local/pages/Mission";
+import MissionCalendarDetailPage from "@/features/local/pages/MissionCalendarDetail";
 import ChallengePage from "@/features/local/pages/Challenge";
 import SpendPointsPage from "@/features/local/pages/SpendPoints";
 import BookmarkPage from "@/features/local/pages/Bookmark";
 import NotificationPage from "@/features/notification/pages/NotificationPage";
+import CharacterShopPage from "@/features/character/pages/CharacterShopPage";
 
 /**
  * 스플래시 페이지를 처리하는 컴포넌트
@@ -51,7 +55,7 @@ function SplashHandler() {
 
 function App() {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <GlobalStyle />
       <LanguageProvider>
         <BrowserRouter>
@@ -73,6 +77,11 @@ function App() {
               <Route path="/local" element={<LocalPage />} />
               <Route path="/local/detail/:id" element={<LocalDetailPage />} />
               <Route path="/local/mission" element={<MissionPage />} />
+              <Route
+                path="/local/mission/calendar/:date"
+                element={<MissionCalendarDetailPage />}
+              />
+              <Route path="/character" element={<CharacterShopPage />} />
               <Route path="/local/challenge/:id" element={<ChallengePage />} />
               <Route path="/local/spend-points" element={<SpendPointsPage />} />
               <Route path="/local/bookmark" element={<BookmarkPage />} />
@@ -81,7 +90,7 @@ function App() {
           </Routes>
         </BrowserRouter>
       </LanguageProvider>
-    </>
+    </QueryClientProvider>
   );
 }
 
