@@ -14,18 +14,25 @@ export function formatExpiresAt(dateArray) {
 
 /**
  * 미션 데이터를 가져오는 커스텀 훅
+ * @param {number} latitude - 위도
+ * @param {number} longitude - 경도
  * @returns {Object} { pointInfo, availableMissions, completedMissions, loading, error, refresh }
  */
-export function useMissions() {
+export function useMissions(latitude, longitude) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchMissions = async () => {
+    // 위치 정보가 없으면 요청하지 않음
+    if (latitude === null || longitude === null) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      const result = await getMissions();
+      const result = await getMissions(latitude, longitude);
       setData(result);
     } catch (err) {
       setError(err.message);
@@ -37,7 +44,7 @@ export function useMissions() {
 
   useEffect(() => {
     fetchMissions();
-  }, []);
+  }, [latitude, longitude]);
 
   const refresh = () => {
     fetchMissions();

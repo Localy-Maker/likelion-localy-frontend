@@ -94,37 +94,42 @@ export const ProfileIcon = styled.button`
   position: relative;
   width: 100px;
   height: 100px;
-  margin-bottom: 10px;
-  border: none;
-  border-radius: 50%;
-  background: #f7f9ff;
+  margin-bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  background: #F3F3F3;
+  border-radius: 50%;
+  border: none;
   padding: 0;
+  cursor: pointer;
+  overflow: hidden;
 
-  svg {
-    width: 48px;
-    height: 42px;
+  &:hover {
+    opacity: 0.92;
   }
 `;
 
-export const PremiumBadge = styled.span`
-  position: absolute;
-  right: -4px;
-  bottom: 8px;
-  min-width: 48px;
-  height: 16px;
-  padding: 0 8px;
-  border-radius: 8px;
-  background: #5482ff;
-  color: #ffffff;
-  font-family: "Inter", sans-serif;
-  font-weight: 600;
+// 프로필 원의 하단 경계에 살짝 걸치도록 음의 margin-top 으로 끌어올린다 (Figma 의 Component 18 위치 기준).
+// z-index 로 프로필 버튼보다 위에 떠 있도록 — 배지 영역 클릭이 프로필 네비게이션을 트리거하지 않게 함.
+export const PlanBadge = styled.span`
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -14px;
+  margin-bottom: 12px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: ${(p) => (p.$isPremium ? "#1976D2" : "#828282")};
+  color: #FFFFFF;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
   font-size: 10px;
-  line-height: 16px;
-  text-align: center;
+  line-height: 14px;
+  letter-spacing: -0.43px;
 `;
 
 export const ProfileName = styled.div`

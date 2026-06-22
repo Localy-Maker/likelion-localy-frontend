@@ -67,8 +67,11 @@ export async function getPlaceDetail(placeId) {
  * 미션 목록 조회 API
  * @returns {Promise<Object>} { pointInfo, availableMissions, completedMissions }
  */
-export async function getMissions() {
-    const response = await apiClient.get('/api/missions');
+export async function getMissions(latitude, longitude) {
+
+    const response = await apiClient.get('/api/missions', {
+        params: { latitude, longitude },
+    });
     const result = response.data;
 
     if (result.success) {

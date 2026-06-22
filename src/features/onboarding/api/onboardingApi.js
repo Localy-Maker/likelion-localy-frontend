@@ -1,6 +1,15 @@
 import apiClient from "@/shared/api/client";
 
 /**
+ * 온보딩 진행 상태/정보 조회
+ * GET /api/onboarding/info
+ */
+export const getOnboardingInfo = async () => {
+  const response = await apiClient.get("/api/onboarding/info");
+  return response.data;
+};
+
+/**
  * 8. 온보딩-언어/국적 선택
  * PUT /api/users/nationality
  */

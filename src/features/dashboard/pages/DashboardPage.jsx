@@ -11,11 +11,12 @@ import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
 import { PageWrapper, ScrollableContent } from "@/features/main/styles/MainPage.styles";
 import notificationWebSocketClient from "@/features/notification/utils/notificationWebSocketClient";
 import { getCurrentUserId } from "@/shared/utils/jwtUtils";
-import PremiumBlurOverlay from "@/shared/components/PremiumBlurOverlay/PremiumBlurOverlay";
-import usePremiumStatus from "@/shared/hooks/usePremiumStatus";
+import { useUserStore } from "@/shared/stores/userStore";
+import PremiumGate from "@/features/dashboard/components/PremiumGate";
 
 export default function DashboardPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("Daily");
+  const isPremium = useUserStore((s) => s.isPremium);
 
   // 현재 년/월 상태 관리
   const [currentYear, setCurrentYear] = useState(2025);
@@ -174,8 +175,8 @@ export default function DashboardPage() {
     if (selectedPeriod !== "Month") return;
 
     try {
-      // yearMonth 형식: "2025-11" (yyyy-mm)
-      const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
+      // yearMonth 형식: "202511" (YYYYMM)
+      const yearMonth = `${year}${String(month).padStart(2, '0')}`;
       const data = await getMonthFeedback(yearMonth);
       setMonthFeedbackData(data);
     } catch (error) {
@@ -455,8 +456,6 @@ export default function DashboardPage() {
   const todayEmotion = getEmotionByValue(todayAverageValue);
 
   const navigate = useNavigate();
-  const premiumStatus = usePremiumStatus();
-  const showPremiumLock = !premiumStatus.isPremium;
   const handleNotificationClick = () => navigate("/notifications");
 
   return (
@@ -495,6 +494,7 @@ export default function DashboardPage() {
 
         {/* 차트 섹션 */}
         {selectedPeriod === "Month" ? (
+          <PremiumGate active={!isPremium}>
           <S.MonthChartSection>
             <S.MonthChartTitle>월별 감정 캘린더</S.MonthChartTitle>
             {/* 년도/월 선택 필드 - 하나로 통합 */}
@@ -688,9 +688,10 @@ export default function DashboardPage() {
                 </S.MonthCalendarCharacter>
               );
             })}
-            {showPremiumLock && <PremiumBlurOverlay />}
           </S.MonthChartSection>
+          </PremiumGate>
         ) : selectedPeriod === "Month" ? null : (
+          <PremiumGate active={!isPremium && selectedPeriod === "Week"}>
           <S.ChartSection>
             <S.ChartTitle>
               {selectedPeriod === "Week" ? "이번주 감정 로그" : "오늘의 감정 트래커"}
@@ -904,10 +905,9 @@ export default function DashboardPage() {
                   })}
                 </>
               )}
-
-              {selectedPeriod === "Week" && showPremiumLock && <PremiumBlurOverlay />}
             </S.ChartArea>
           </S.ChartSection>
+          </PremiumGate>
         )}
 
         {/* 리스트 섹션 - Daily와 Month 뷰에서 표시 */}
@@ -915,6 +915,11 @@ export default function DashboardPage() {
           <S.ListSection>
             <S.ListHeader>
               <S.ListTitle>오늘 가장 많이 느낀 감정은</S.ListTitle>
+              <S.ChevronIcon>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 4L10 8L6 12" stroke="#838383" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </S.ChevronIcon>
             </S.ListHeader>
 
             {dailyChartData.length > 0 && todayEmotion ? (
@@ -982,7 +987,6 @@ export default function DashboardPage() {
                 챗봇과 대화를 나누시면 감정 데이터가 수집됩니다.
               </div>
             )}
-            {showPremiumLock && <PremiumBlurOverlay />}
           </S.MonthListSection>
         )}
 

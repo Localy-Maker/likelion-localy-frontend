@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { getMyPage, deleteAccount } from "../api/mypageApi";
-import { getCharacters, changeCurrentCharacter } from "../api/characterApi";
+import { getMyPage, deleteAccount, getPremiumStatus } from "../api/mypageApi";
 import { logout } from "@/features/auth/api/authApi";
 import LogoutModal from "../components/LogoutModal";
-import CharacterSelectSheet from "../components/CharacterSelectSheet";
 import * as S from "../styles/MyPage.styles";
 import Header from "@/shared/components/Header/Header";
 import BellIcon from "@/shared/components/icons/BellIcon";
@@ -12,14 +10,8 @@ import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
 import { PageWrapper, ScrollableContent } from "@/features/main/styles/MainPage.styles";
 import notificationWebSocketClient from "@/features/notification/utils/notificationWebSocketClient";
 import { getCurrentUserId } from "@/shared/utils/jwtUtils";
-import { renderEmotionCharacter } from "@/shared/utils/emotionCharacters";
-import usePremiumStatus from "@/shared/hooks/usePremiumStatus";
-import {
-  getProfileCharacter,
-  setProfileCharacter,
-  toBeCharacterCode,
-  toFeCharacterCode,
-} from "../utils/characterStorage";
+import { useUserStore } from "@/shared/stores/userStore";
+import CharacterPreview from "@/features/character/components/CharacterPreview";
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -31,10 +23,10 @@ export default function MyPage() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [profileCharacter, setProfileCharacterState] = useState(getProfileCharacter);
-  const [isCharacterSheetOpen, setIsCharacterSheetOpen] = useState(false);
-  const [isCharacterSaving, setIsCharacterSaving] = useState(false);
-  const premiumStatus = usePremiumStatus();
+  const isPremium = useUserStore((s) => s.isPremium);
+  const setPremium = useUserStore((s) => s.setPremium);
+  const equippedCharacter = useUserStore((s) => s.equippedCharacter);
+  const equippedItems = useUserStore((s) => s.equippedItems);
 
   useEffect(() => {
     const fetchMyPage = async () => {
@@ -42,22 +34,9 @@ export default function MyPage() {
         setIsLoading(true);
         setError("");
 
-        const [pageResult, characterResult] = await Promise.all([
-          getMyPage(),
-          getCharacters().catch(() => null),
-        ]);
-
-        const responseData = pageResult?.data || pageResult;
+        const data = await getMyPage();
+        const responseData = data?.data || data;
         setUserData(responseData);
-
-        const currentCharacter = characterResult?.characters?.find(
-          (character) => character.isCurrent,
-        );
-        if (currentCharacter?.code) {
-          const feCharacter = toFeCharacterCode(currentCharacter.code);
-          setProfileCharacterState(feCharacter);
-          setProfileCharacter(feCharacter);
-        }
       } catch (err) {
         setError(err.response?.data?.message || "마이페이지 정보를 불러오는데 실패했습니다.");
       } finally {
@@ -68,16 +47,29 @@ export default function MyPage() {
     fetchMyPage();
   }, []);
 
+  // 프리미엄 상태 동기화 — userStore.isPremium 갱신용
   useEffect(() => {
-    const syncCharacter = () => {
-      setProfileCharacterState(getProfileCharacter());
-    };
-
-    window.addEventListener("profile-character-changed", syncCharacter);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getPremiumStatus();
+        const payload = res?.data ?? res ?? {};
+        if (cancelled) return;
+        setPremium({
+          isPremium: Boolean(payload.isPremium ?? payload.premium),
+          premiumExpiresAt: payload.expiresAt ?? payload.premiumExpiresAt ?? null,
+        });
+      } catch (err) {
+        // 백엔드가 미배포된 환경에서는 조용히 무시 (기본값 = basic)
+        if (import.meta.env.DEV) {
+          console.warn("프리미엄 상태 조회 실패:", err);
+        }
+      }
+    })();
     return () => {
-      window.removeEventListener("profile-character-changed", syncCharacter);
+      cancelled = true;
     };
-  }, []);
+  }, [setPremium]);
 
   // WebSocket connection for unread notification count
   useEffect(() => {
@@ -165,26 +157,6 @@ export default function MyPage() {
 
   const handleNotificationClick = () => navigate("/notifications");
 
-  const handleCharacterConfirm = async (characterId) => {
-    if (isCharacterSaving) return;
-
-    setIsCharacterSaving(true);
-    try {
-      await changeCurrentCharacter(toBeCharacterCode(characterId));
-      setProfileCharacter(characterId);
-      setProfileCharacterState(characterId);
-      setIsCharacterSheetOpen(false);
-    } catch (err) {
-      const message =
-        err.response?.data?.message || "캐릭터 변경에 실패했습니다.";
-      alert(message);
-    } finally {
-      setIsCharacterSaving(false);
-    }
-  };
-
-  const displayName = userData?.name || userData?.nickname || "사용자";
-
   if (isLoading) {
     return (
       <PageWrapper>
@@ -237,15 +209,15 @@ export default function MyPage() {
       <S.Container>
 
       <S.ProfileCard>
-        <S.ProfileIcon
-          type="button"
-          onClick={() => setIsCharacterSheetOpen(true)}
-          aria-label="프로필 캐릭터 변경"
-        >
-          {renderEmotionCharacter(profileCharacter)}
-          {premiumStatus.isPremium && <S.PremiumBadge>Premium</S.PremiumBadge>}
+        <S.ProfileIcon type="button" onClick={() => navigate("/character")} aria-label="캐릭터 꾸미기">
+          <CharacterPreview
+            characterId={equippedCharacter ?? "happiness"}
+            equip={equippedItems}
+            size={100}
+          />
         </S.ProfileIcon>
-        <S.ProfileName>{displayName}</S.ProfileName>
+        <S.PlanBadge $isPremium={isPremium}>{isPremium ? "Premium" : "Basic"}</S.PlanBadge>
+        <S.ProfileName>{userData?.name || userData?.nickname || "사용자"}</S.ProfileName>
         <S.ProfileEmail>{userData?.email || ""}</S.ProfileEmail>
         
         <S.ActionButtons>
@@ -297,15 +269,6 @@ export default function MyPage() {
         message="회원탈퇴를 계속 하시겠습니까?"
         confirmText="확인"
         cancelText="닫기"
-      />
-
-      <CharacterSelectSheet
-        isOpen={isCharacterSheetOpen}
-        userName={displayName}
-        selectedCharacter={profileCharacter}
-        isSubmitting={isCharacterSaving}
-        onClose={() => setIsCharacterSheetOpen(false)}
-        onConfirm={handleCharacterConfirm}
       />
       </S.Container>
       </ScrollableContent>
