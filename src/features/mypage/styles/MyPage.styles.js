@@ -90,21 +90,41 @@ export const ProfileCard = styled.div`
   padding: 12px 0;
 `;
 
-export const ProfileIcon = styled.div`
+export const ProfileIcon = styled.button`
   position: relative;
-  width: 113px;
-  height: 115px;
+  width: 100px;
+  height: 100px;
   margin-bottom: 10px;
-  font-family: 'SF Pro';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 96px;
-  line-height: 115px;
+  border: none;
+  border-radius: 50%;
+  background: #f7f9ff;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  padding: 0;
+
+  svg {
+    width: 48px;
+    height: 42px;
+  }
+`;
+
+export const PremiumBadge = styled.span`
+  position: absolute;
+  right: -4px;
+  bottom: 8px;
+  min-width: 48px;
+  height: 16px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: #5482ff;
+  color: #ffffff;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 16px;
   text-align: center;
-  color: #E0E0E0;
 `;
 
 export const ProfileName = styled.div`

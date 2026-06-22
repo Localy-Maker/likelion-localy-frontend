@@ -518,7 +518,7 @@ export const MonthChartSection = styled.div`
   background: #FFFFFF;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
-  overflow: visible;
+  overflow: hidden;
   z-index: 1;
 `;
 
@@ -660,6 +660,7 @@ export const MonthListSection = styled.div`
   background: #FFFFFF;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
+  overflow: hidden;
 `;
 
 export const MonthListTitle = styled.div`

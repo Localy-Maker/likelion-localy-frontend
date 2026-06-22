@@ -11,6 +11,8 @@ import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
 import { PageWrapper, ScrollableContent } from "@/features/main/styles/MainPage.styles";
 import notificationWebSocketClient from "@/features/notification/utils/notificationWebSocketClient";
 import { getCurrentUserId } from "@/shared/utils/jwtUtils";
+import PremiumBlurOverlay from "@/shared/components/PremiumBlurOverlay/PremiumBlurOverlay";
+import usePremiumStatus from "@/shared/hooks/usePremiumStatus";
 
 export default function DashboardPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("Daily");
@@ -453,6 +455,8 @@ export default function DashboardPage() {
   const todayEmotion = getEmotionByValue(todayAverageValue);
 
   const navigate = useNavigate();
+  const premiumStatus = usePremiumStatus();
+  const showPremiumLock = !premiumStatus.isPremium;
   const handleNotificationClick = () => navigate("/notifications");
 
   return (
@@ -684,6 +688,7 @@ export default function DashboardPage() {
                 </S.MonthCalendarCharacter>
               );
             })}
+            {showPremiumLock && <PremiumBlurOverlay />}
           </S.MonthChartSection>
         ) : selectedPeriod === "Month" ? null : (
           <S.ChartSection>
@@ -899,6 +904,8 @@ export default function DashboardPage() {
                   })}
                 </>
               )}
+
+              {selectedPeriod === "Week" && showPremiumLock && <PremiumBlurOverlay />}
             </S.ChartArea>
           </S.ChartSection>
         )}
@@ -975,6 +982,7 @@ export default function DashboardPage() {
                 챗봇과 대화를 나누시면 감정 데이터가 수집됩니다.
               </div>
             )}
+            {showPremiumLock && <PremiumBlurOverlay />}
           </S.MonthListSection>
         )}
 
