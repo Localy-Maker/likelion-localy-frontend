@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import * as S from "../styles/WelcomePage.styles";
-import EmotionIcons from "../components/EmotionIcons";
+import { renderEmotionCharacter } from "@/shared/utils/emotionCharacters";
 
 /**
  * @component WelcomePage
@@ -37,8 +37,38 @@ export default function WelcomePage() {
         </S.WelcomeMessage>
       </S.WelcomeSection>
       
-      {/* 감정 아이콘들 */}
-      <EmotionIcons />
+      {/* 감정 캐릭터들 */}
+      <S.CharactersGroup>
+        {/* Component 8 - 행복 (happiness) */}
+        <S.CharacterWrapper>
+          {renderEmotionCharacter("happiness")}
+        </S.CharacterWrapper>
+
+        {/* Component 6 - 슬픔 (sadness) */}
+        <S.CharacterWrapper>
+          {renderEmotionCharacter("sadness")}
+        </S.CharacterWrapper>
+
+        {/* Component 3 - 분노 (anger) */}
+        <S.CharacterWrapper>
+          {renderEmotionCharacter("anger")}
+        </S.CharacterWrapper>
+
+        {/* Component 4 - 우울 (depression) */}
+        <S.CharacterWrapper>
+          {renderEmotionCharacter("depression")}
+        </S.CharacterWrapper>
+
+        {/* Component 5 - 중립 (neutral) */}
+        <S.CharacterWrapper>
+          {renderEmotionCharacter("neutral")}
+        </S.CharacterWrapper>
+
+        {/* Component 7 - 불안 (anxiety) */}
+        <S.CharacterWrapper>
+          {renderEmotionCharacter("anxiety")}
+        </S.CharacterWrapper>
+      </S.CharactersGroup>
       
       {/* 시작하기 버튼 */}
       <S.StartButton onClick={handleStart}>

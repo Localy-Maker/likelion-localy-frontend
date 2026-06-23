@@ -34,7 +34,7 @@ export const getWeekFeedback = async (date = null) => {
  * Month 피드백 데이터 조회
  * GET /api/dailyFeedback/month/{yearMonth}
  * 
- * @param {string} yearMonth - 년월 (YYYYMM 형식, 예: "202511")
+ * @param {string} yearMonth - 년월 (yyyy-mm 형식, 예: "2025-11")
  * @returns {Promise} { yearMonth, days: [{ day, emotion }], monthlyStats: { 1: count, 2: count, ... } }
  */
 export const getMonthFeedback = async (yearMonth) => {

@@ -322,11 +322,11 @@ export default function EditMyInfoPage() {
           </svg>
         </S.BackButton>
         <S.Title>{t("editMyInfo")}</S.Title>
-        <S.HeaderSpacer />
       </S.Header>
 
-      {/* 안내 문구 */}
-      <S.Subtitle>{t("enterMemberInfo")}</S.Subtitle>
+      <S.ContentWrapper>
+        {/* 안내 문구 */}
+        <S.Subtitle>{t("enterMemberInfo")}</S.Subtitle>
 
       {/* 회원정보 수정 폼 */}
       <S.Form onSubmit={handleSubmit}>
@@ -511,13 +511,17 @@ export default function EditMyInfoPage() {
         </S.NationalityFieldWrapper>
       </S.Form>
 
-      {/* 개인정보 동의 문구 */}
-      <S.AgreementText>{t("agreement")}</S.AgreementText>
+        {/* 하단 고정 섹션: 개인정보 동의 문구 및 완료 버튼 */}
+        <S.BottomSection>
+          {/* 개인정보 동의 문구 */}
+          <S.AgreementText>{t("agreement")}</S.AgreementText>
 
-      {/* 회원정보 수정 완료 버튼 */}
-      <S.SubmitButton type="submit" disabled={!isButtonEnabled} $isEnabled={isButtonEnabled} onClick={handleSubmit}>
-        {isLoading ? t("processing") : t("complete")}
-      </S.SubmitButton>
+          {/* 회원정보 수정 완료 버튼 */}
+          <S.SubmitButton type="submit" disabled={!isButtonEnabled} $isEnabled={isButtonEnabled} onClick={handleSubmit}>
+            {isLoading ? t("processing") : t("complete")}
+          </S.SubmitButton>
+        </S.BottomSection>
+      </S.ContentWrapper>
 
       {/* 언어 선택 모달 */}
       <SidebarModal

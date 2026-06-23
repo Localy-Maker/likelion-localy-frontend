@@ -3,33 +3,36 @@ import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
 
 export const Container = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 800px; /* 메인 페이지와 동일한 최대 너비 */
   min-height: 100vh;
-  padding: 0 24px;
+  background: #FFFFFF;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background: white;
-  position: relative;
+  margin: 0 auto; /* 메인 페이지와 동일하게 중앙 정렬 */
+  padding: 0;
 `;
 
 export const Header = styled.div`
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  padding: 13px 22px;
-  width: 100%;
-  max-width: 327px;
-  height: 56px;
+  padding: 0; /* 메인 페이지 헤더와 동일하게 padding 제거 */
+  width: 100%; /* 메인 페이지 헤더와 동일하게 전체 너비 사용 */
+  height: 56px; /* 메인 페이지 헤더와 동일한 높이 */
   background: #FFFFFF;
-  border-bottom: 1px solid #F3F3F3;
-  margin-bottom: 16px;
+  border-bottom: 0.5px solid #e6e6e6; /* 메인 페이지 헤더와 동일한 border */
   position: relative;
 `;
 
 export const BackButton = styled.button`
   position: absolute;
-  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 16px; /* 메인 페이지 헤더와 동일한 위치 */
   background: none;
   border: none;
   cursor: pointer;
@@ -46,6 +49,14 @@ export const BackButton = styled.button`
     height: 24px;
     color: #0D0D0D;
   }
+  
+  &:hover {
+    opacity: 0.7;
+  }
+  
+  &:active {
+    opacity: 0.5;
+  }
 `;
 
 export const Title = styled.h1`
@@ -55,20 +66,26 @@ export const Title = styled.h1`
   letter-spacing: -0.43px;
   color: #0D0D0D;
   text-align: center;
-  flex: none;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  margin: 0;
 `;
 
 export const HeaderSpacer = styled.div`
   width: 24px;
   height: 24px;
   flex: none;
+`;
+
+export const ContentWrapper = styled.div`
+  padding: 0 24px 120px 24px; /* 하단 버튼 공간 확보 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: calc(100vh - 56px); /* 헤더 높이 제외 */
+  position: relative;
 `;
 
 export const Subtitle = styled.p`
@@ -306,29 +323,41 @@ export const FieldLabel = styled.span`
   text-align: left;
 `;
 
+export const BottomSection = styled.div`
+  width: 100%;
+  max-width: 327px;
+  margin-left: auto;
+  margin-right: auto;
+  position: absolute;
+  bottom: 34px; /* Home indicator space */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0;
+  box-sizing: border-box;
+  min-height: 74px; /* 버튼과 문구의 최소 높이 보장 */
+  
+  /* 키보드가 올라와도 버튼이 보이도록 최소 위치 보장 */
+  @media (max-height: 700px) {
+    bottom: max(34px, 20px);
+  }
+`;
+
 export const AgreementText = styled.p`
   font-weight: 400;
   font-size: 12px;
   line-height: 22px;
   letter-spacing: -0.43px;
   color: #838383;
-  margin-top: auto; /* 버튼 위로 자동 배치 */
+  margin-top: 0;
   margin-bottom: 0; /* 완료 버튼과 바로 붙이기 */
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
-  max-width: 327px;
   text-align: center;
 `;
 
 export const SubmitButton = styled.button`
   width: 100%;
-  max-width: 327px;
   height: 40px;
   margin-top: 0; /* 개인정보 동의 문구와 바로 붙이기 */
   margin-bottom: 34px; /* Home indicator space - 온보딩과 동일 */
-  margin-left: auto;
-  margin-right: auto;
   background: ${(props) => (props.$isEnabled ? "#5482FF" : "#F3F3F3")};
   border: none;
   border-radius: 8px;

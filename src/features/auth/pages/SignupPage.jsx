@@ -241,11 +241,11 @@ export default function SignupPage() {
           </svg>
         </S.BackButton>
         <S.Title>회원가입</S.Title>
-        <S.HeaderSpacer />
       </S.Header>
 
-      {/* 안내 문구 */}
-      <S.Subtitle>회원정보를 입력해주세요</S.Subtitle>
+      <S.ContentWrapper>
+        {/* 안내 문구 */}
+        <S.Subtitle>회원정보를 입력해주세요</S.Subtitle>
 
       {/* 회원가입 폼 */}
       <S.Form onSubmit={handleSubmit}>
@@ -407,13 +407,17 @@ export default function SignupPage() {
         </S.InputWrapper>
       </S.Form>
 
-      {/* 개인정보 동의 문구 */}
-      <S.AgreementText>개인정보 및 위치 제공에 동의합니다.</S.AgreementText>
+        {/* 하단 고정 섹션: 개인정보 동의 문구 및 완료 버튼 */}
+        <S.BottomSection>
+          {/* 개인정보 동의 문구 */}
+          <S.AgreementText>개인정보 및 위치 제공에 동의합니다.</S.AgreementText>
 
-      {/* 회원가입 완료 버튼 */}
-      <S.SubmitButton type="submit" disabled={!isButtonEnabled || isLoading} $isEnabled={isButtonEnabled && !isLoading} onClick={handleSubmit}>
-        {isLoading ? "처리 중..." : "완료"}
-      </S.SubmitButton>
+          {/* 회원가입 완료 버튼 */}
+          <S.SubmitButton type="submit" disabled={!isButtonEnabled || isLoading} $isEnabled={isButtonEnabled && !isLoading} onClick={handleSubmit}>
+            {isLoading ? "처리 중..." : "완료"}
+          </S.SubmitButton>
+        </S.BottomSection>
+      </S.ContentWrapper>
     </S.Container>
   );
 }

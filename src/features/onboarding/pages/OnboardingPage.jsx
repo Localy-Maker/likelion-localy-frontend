@@ -257,6 +257,12 @@ export default function OnboardingPage() {
    * 이전 단계로 돌아가는 핸들러
    */
   const handleBack = () => {
+    // 관심사 변경 모드에서는 마이페이지로 이동
+    if (isInterestChange) {
+      navigate("/mypage");
+      return;
+    }
+    
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     } else {

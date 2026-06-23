@@ -38,7 +38,7 @@ export default function LocalPage() {
 
   return (
     <>
-      <Header text="로컬 적용 가이드" rightIcon={<BookmarkIcon />} onRightClick={handleRightClick} onLeftClick={handleLeftClick} />
+      <Header text="로컬 적응 가이드" rightIcon={<BookmarkIcon />} onRightClick={handleRightClick} onLeftClick={handleLeftClick} />
       <Container>
         {(locationError || dataError) && (
           <ErrorMessage>{locationError || dataError}</ErrorMessage>
