@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
+import { resolveAssetUrl } from "@/features/character/utils/assetUrl";
 
 const Backdrop = styled.div`
   position: fixed;
@@ -99,9 +100,9 @@ const PrimaryButton = styled.button`
 `;
 
 /**
- * 아이템 구매 바텀 시트.
+ * 아이템 구매 바텀 시트(서버 아이템 기준).
  * @param {object} props
- * @param {{id, src, price}|null} props.item - 구매 대상 아이템 (null 이면 시트 닫힘)
+ * @param {{itemId, name, imageUrl, price}|null} props.item - 구매 대상 아이템 (null 이면 시트 닫힘)
  * @param {number} props.balance - 보유 포인트
  * @param {boolean} props.loading - 구매 진행 중
  * @param {function} props.onConfirm - 구매 확정 콜백
@@ -115,7 +116,7 @@ export default function PurchaseSheet({ item, balance, loading, onConfirm, onClo
       <Sheet onClick={(e) => e.stopPropagation()}>
         <Title>이 아이템을 구매할까요?</Title>
         <Preview>
-          <img src={item.src} alt={item.id} />
+          <img src={resolveAssetUrl(item.imageUrl)} alt={item.name} />
         </Preview>
         <PriceRow>
           <PriceValue>{item.price}</PriceValue>

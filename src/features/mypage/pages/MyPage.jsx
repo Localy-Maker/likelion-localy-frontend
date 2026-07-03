@@ -12,6 +12,7 @@ import notificationWebSocketClient from "@/features/notification/utils/notificat
 import { getCurrentUserId } from "@/shared/utils/jwtUtils";
 import { useUserStore } from "@/shared/stores/userStore";
 import CharacterPreview from "@/features/character/components/CharacterPreview";
+import { resolveAssetUrl } from "@/features/character/utils/assetUrl";
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -27,6 +28,18 @@ export default function MyPage() {
   const setPremium = useUserStore((s) => s.setPremium);
   const equippedCharacter = useUserStore((s) => s.equippedCharacter);
   const equippedItems = useUserStore((s) => s.equippedItems);
+  const serverCharacter = useUserStore((s) => s.serverCharacter);
+
+  // 서버 hydrate 값이 있으면 서버 모드(imageUrl)로 렌더, 없으면 로컬 모드로 폴백.
+  const previewProps = serverCharacter?.imageUrl
+    ? {
+        bodySrc: resolveAssetUrl(serverCharacter.imageUrl),
+        backgroundSrc: resolveAssetUrl(serverCharacter.equipped?.background?.imageUrl),
+        hatSrc: resolveAssetUrl(serverCharacter.equipped?.hat?.imageUrl),
+        accessorySrc: resolveAssetUrl(serverCharacter.equipped?.accessory?.imageUrl),
+        etcSrc: resolveAssetUrl(serverCharacter.equipped?.etc?.imageUrl),
+      }
+    : { characterId: equippedCharacter ?? "happiness", equip: equippedItems };
 
   useEffect(() => {
     const fetchMyPage = async () => {
@@ -210,11 +223,7 @@ export default function MyPage() {
 
       <S.ProfileCard>
         <S.ProfileIcon type="button" onClick={() => navigate("/character")} aria-label="캐릭터 꾸미기">
-          <CharacterPreview
-            characterId={equippedCharacter ?? "happiness"}
-            equip={equippedItems}
-            size={100}
-          />
+          <CharacterPreview {...previewProps} size={100} />
         </S.ProfileIcon>
         <S.PlanBadge $isPremium={isPremium}>{isPremium ? "Premium" : "Basic"}</S.PlanBadge>
         <S.ProfileName>{userData?.name || userData?.nickname || "사용자"}</S.ProfileName>

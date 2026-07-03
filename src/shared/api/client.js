@@ -4,7 +4,7 @@ import axios from "axios";
  * API 기본 URL 설정
  * 환경 변수에서 가져오거나 기본값 사용
  */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.localy-maker.shop";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.localy-maker.shop";
 
 /**
  * Axios 인스턴스 생성

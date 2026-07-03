@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
-import { renderEmotionCharacter } from "@/shared/utils/emotionCharacters";
+import { resolveAssetUrl } from "@/features/character/utils/assetUrl";
 
 const Backdrop = styled.div`
   position: fixed;
@@ -68,13 +68,10 @@ const Option = styled.button`
   cursor: pointer;
   transition: all 0.15s;
 
-  div {
-    transform: scale(1.6);
-    transform-origin: center;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
   }
 `;
 
@@ -83,36 +80,35 @@ const OptionLabel = styled.span`
   color: ${colors.gray[900]};
 `;
 
-const EMOTION_OPTIONS = [
-  { id: "happiness", label: "행복" },
-  { id: "anger", label: "분노" },
-  { id: "sadness", label: "슬픔" },
-  { id: "depression", label: "우울" },
-  { id: "anxiety", label: "불안" },
-  { id: "neutral", label: "중립" },
-];
-
 /**
- * 본체(감정) 캐릭터를 고르는 바텀 시트.
- * 선택 시 상위 onSelect 호출 — 부모는 장착 아이템을 초기화해야 한다 (사용자 명세).
+ * 본체(감정) 캐릭터를 고르는 바텀 시트(서버 캐릭터 목록 기준).
+ * 서버 캐릭터 shape: { code, name, imageUrl, isCurrent }.
+ * 선택 시 onSelect(code) 호출 — 부모가 PATCH /api/characters/current 를 수행한다.
+ * (착용 상태는 서버가 유지하므로 프론트에서 초기화하지 않는다.)
+ *
+ * @param {object} props
+ * @param {boolean} props.open
+ * @param {Array} props.characters - 서버 캐릭터 목록
+ * @param {function} props.onSelect - 캐릭터 code 전달
+ * @param {function} props.onClose
  */
-export default function CharacterSelectSheet({ open, activeId, onSelect, onClose }) {
+export default function CharacterSelectSheet({ open, characters = [], onSelect, onClose }) {
   if (!open) return null;
   return (
     <Backdrop role="dialog" aria-modal="true" onClick={onClose}>
       <Sheet onClick={(e) => e.stopPropagation()}>
         <Title>캐릭터 선택</Title>
-        <Note>다른 캐릭터를 선택하면 장착한 아이템이 초기화돼요.</Note>
+        <Note>캐릭터를 바꿔도 착용한 아이템은 유지돼요.</Note>
         <Grid>
-          {EMOTION_OPTIONS.map((opt) => (
+          {characters.map((c) => (
             <Option
-              key={opt.id}
+              key={c.code}
               type="button"
-              $active={activeId === opt.id}
-              onClick={() => onSelect(opt.id)}
+              $active={c.isCurrent}
+              onClick={() => onSelect(c.code)}
             >
-              <div>{renderEmotionCharacter(opt.id)}</div>
-              <OptionLabel>{opt.label}</OptionLabel>
+              <img src={resolveAssetUrl(c.imageUrl)} alt={c.name} />
+              <OptionLabel>{c.name}</OptionLabel>
             </Option>
           ))}
         </Grid>
