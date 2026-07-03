@@ -1,5 +1,6 @@
 import {
   CardWrapper,
+  CharacterSlot,
   TextContainer,
   TextHeader,
   TextBody,
@@ -19,11 +20,13 @@ const HomeCharacterCard = ({ onClick, nickname = "멋사" }) => {
 
   return (
     <CardWrapper onClick={onClick}>
-      <CharacterPreview
-        characterId={equippedCharacter ?? "happiness"}
-        equip={equippedItems}
-        size={70}
-      />
+      <CharacterSlot>
+        <CharacterPreview
+          characterId={equippedCharacter ?? "happiness"}
+          equip={equippedItems}
+          size={60}
+        />
+      </CharacterSlot>
       <TextContainer>
         <TextHeader>안녕하세요 {nickname}님,</TextHeader>
         <TextBody>
