@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Header from "@/shared/components/Header/Header";
 import CharacterPreview from "@/features/character/components/CharacterPreview";
 import CategoryTabs from "@/features/character/components/CategoryTabs";
@@ -12,129 +13,143 @@ import {
   CharacterSelectChip,
   PointsChip,
   PreviewArea,
-  FloatingSaveButton,
 } from "@/features/character/styles/CharacterShop.styles";
-import { useCharacterShopStore } from "@/shared/stores/characterShopStore";
-import { useUserStore } from "@/shared/stores/userStore";
 import {
-  filterItemsByEmotion,
-  getItemById,
-  isItemOwned,
-  SHOP_ITEMS,
-} from "@/assets/character";
+  getShopState,
+  getItemsByCategory,
+  getOwnedItems,
+  getCharacters,
+  purchaseItem,
+  equipItem,
+  changeCurrentCharacter,
+} from "@/features/character/api/shopApi";
+import { resolveAssetUrl } from "@/features/character/utils/assetUrl";
+import { useUserStore } from "@/shared/stores/userStore";
+
+// 탭 key ↔ 서버 카테고리(BACKGROUND|HAT|ACCESSORY|ETC) 매핑. "owned" 는 전용 엔드포인트.
+const TAB_TO_CATEGORY = {
+  background: "BACKGROUND",
+  hat: "HAT",
+  accessory: "ACCESSORY",
+  etc: "ETC",
+};
 
 export default function CharacterShopPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState("hat");
-  const [purchaseItem, setPurchaseItem] = useState(null);
+  const [purchaseTarget, setPurchaseTarget] = useState(null);
   const [purchasing, setPurchasing] = useState(false);
   const [characterSheetOpen, setCharacterSheetOpen] = useState(false);
 
-  const equippedCharacter = useUserStore((s) => s.equippedCharacter);
-  const equippedItems = useUserStore((s) => s.equippedItems);
-  const setEquipped = useUserStore((s) => s.setEquipped);
-  const points = useUserStore((s) => s.points);
   const setPoints = useUserStore((s) => s.setPoints);
-  const ownedItems = useUserStore((s) => s.ownedItems);
-  const addOwnedItem = useUserStore((s) => s.addOwnedItem);
 
-  const draftCharacterId = useCharacterShopStore((s) => s.draftCharacterId);
-  const draftEquip = useCharacterShopStore((s) => s.draftEquip);
-  const hydrateFromServer = useCharacterShopStore((s) => s.hydrateFromServer);
-  const selectCharacter = useCharacterShopStore((s) => s.selectCharacter);
-  const tryOnItem = useCharacterShopStore((s) => s.tryOnItem);
-  const takeOff = useCharacterShopStore((s) => s.takeOff);
-  const resetDraft = useCharacterShopStore((s) => s.resetDraft);
-  const commitDraft = useCharacterShopStore((s) => s.commitDraft);
-  const isDirty = useCharacterShopStore((s) => s.isDirty);
+  // 상점 상태(포인트 + 현재 캐릭터 + 착용). 502/네트워크 실패 시 undefined → 빈 상태로 렌더.
+  const { data: shopState } = useQuery({
+    queryKey: ["shop-state"],
+    queryFn: getShopState,
+    staleTime: 1000 * 30,
+    retry: false,
+  });
 
-  // 페이지 진입 시 userStore (persist 된 값) 으로 store 동기화. 본체가 비어있으면 기본값 happiness.
-  useEffect(() => {
-    hydrateFromServer({
-      characterId: equippedCharacter ?? "happiness",
-      equip: equippedItems,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // 현재 탭의 아이템 목록. owned 탭은 별도 엔드포인트.
+  const { data: itemsData, isLoading: itemsLoading } = useQuery({
+    queryKey: ["shop-items", tab],
+    queryFn: () =>
+      tab === "owned"
+        ? getOwnedItems()
+        : getItemsByCategory(TAB_TO_CATEGORY[tab]),
+    staleTime: 1000 * 30,
+    retry: false,
+  });
 
-  const dirty = isDirty();
+  // 캐릭터 목록(선택 시트에서 사용). 시트 열릴 때만 조회.
+  const { data: charactersData } = useQuery({
+    queryKey: ["shop-characters"],
+    queryFn: getCharacters,
+    enabled: characterSheetOpen,
+    staleTime: 1000 * 60,
+    retry: false,
+  });
 
-  const itemsForTab = useMemo(() => {
-    if (tab === "owned") {
-      const allCategories = ["background", "hat", "accessory", "etc"];
-      return allCategories.flatMap((cat) =>
-        (SHOP_ITEMS[cat] ?? []).filter((item) => isItemOwned(item.id, ownedItems)),
-      );
-    }
-    return filterItemsByEmotion(tab, draftCharacterId);
-  }, [tab, draftCharacterId, ownedItems]);
+  const points = shopState?.currentPoint ?? 0;
+  const currentCharacter = shopState?.currentCharacter ?? null;
+  const equipped = currentCharacter?.equipped ?? null;
+  const items = itemsData?.items ?? [];
+
+  // 서버 착용 상태 → CharacterPreview 서버 모드 props(절대 URL 로 변환).
+  const previewProps = useMemo(
+    () => ({
+      bodySrc: resolveAssetUrl(currentCharacter?.imageUrl),
+      backgroundSrc: resolveAssetUrl(equipped?.background?.imageUrl),
+      hatSrc: resolveAssetUrl(equipped?.hat?.imageUrl),
+      accessorySrc: resolveAssetUrl(equipped?.accessory?.imageUrl),
+      etcSrc: resolveAssetUrl(equipped?.etc?.imageUrl),
+    }),
+    [currentCharacter, equipped],
+  );
+
+  // 상태/아이템/캐릭터를 함께 무효화(변경 후 서버 재조회).
+  const refreshAll = () => {
+    queryClient.invalidateQueries({ queryKey: ["shop-state"] });
+    queryClient.invalidateQueries({ queryKey: ["shop-items"] });
+    queryClient.invalidateQueries({ queryKey: ["shop-characters"] });
+  };
 
   /**
-   * 아이템 클릭 처리.
-   * - 같은 슬롯에 이미 장착된 아이템을 다시 클릭 → 해제
-   * - 미보유 아이템 → 구매 시트 오픈
-   * - 보유 아이템 → 해당 카테고리 슬롯에 장착 (기존 장착 아이템은 교체)
+   * 아이템 클릭:
+   *  - 보유 + 착용중  → 해제(PATCH equip itemId:null)
+   *  - 보유 + 미착용  → 착용(PATCH equip)
+   *  - 미보유        → 구매 시트 오픈
    */
-  const handleItemPick = (id) => {
-    const item = getItemById(id);
+  const handleItemPick = async (item) => {
     if (!item) return;
-
-    if (draftEquip?.[item.category] === id) {
-      takeOff(item.category);
+    if (!item.isOwned) {
+      setPurchaseTarget(item);
       return;
     }
-
-    if (!isItemOwned(id, ownedItems)) {
-      setPurchaseItem(item);
-      return;
+    try {
+      // item.category 는 서버가 내려준 값(BACKGROUND|HAT|ACCESSORY|ETC) 그대로 사용.
+      await equipItem(item.category, item.isEquipped ? null : item.itemId);
+      refreshAll();
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn("착용 변경 실패:", err?.message);
     }
-    tryOnItem(item.category, id);
   };
 
   const handlePurchaseConfirm = async () => {
-    if (!purchaseItem || purchasing) return;
-    if (points < purchaseItem.price) return;
+    if (!purchaseTarget || purchasing) return;
+    if (points < purchaseTarget.price) return;
     setPurchasing(true);
     try {
-      // TODO: 백엔드 캐릭터 API 추가 시 POST /api/users/me/character/items 로 교체.
-      setPoints(points - purchaseItem.price);
-      addOwnedItem(purchaseItem.id);
-      tryOnItem(purchaseItem.category, purchaseItem.id);
-      setPurchaseItem(null);
+      // 구매 성공 시 currentPoint 를 즉시 userStore 에 반영(다른 화면 정합성). 서버가 자동 착용.
+      const res = await purchaseItem(purchaseTarget.itemId);
+      if (typeof res?.currentPoint === "number") setPoints(res.currentPoint);
+      setPurchaseTarget(null);
+      refreshAll();
+    } catch (err) {
+      // SHOP002(이미 보유)/SHOP003(포인트 부족) 등 서버 에러. ponytail: 토스트 UI 는 BE 복구 후 추가.
+      if (import.meta.env.DEV) console.warn("구매 실패:", err?.message);
+      setPurchaseTarget(null);
     } finally {
       setPurchasing(false);
     }
   };
 
-  // 본체 변경: 사용자 명세에 따라 장착 아이템을 모두 초기화한다.
-  const handleCharacterChange = (newCharId) => {
-    selectCharacter(newCharId);
-    ["background", "hat", "accessory", "etc"].forEach((cat) => takeOff(cat));
-    setCharacterSheetOpen(false);
-  };
-
-  const handleSave = () => {
-    commitDraft();
-    setEquipped({
-      characterId: draftCharacterId,
-      equip: draftEquip,
-    });
-  };
-
-  const handleBack = () => {
-    if (dirty) {
-      const confirmLeave = window.confirm(
-        "저장하지 않은 변경 사항이 있어요. 그래도 나갈까요?",
-      );
-      if (!confirmLeave) return;
-      resetDraft();
+  // 본체 변경: PATCH /api/characters/current. 착용 상태는 서버가 유지.
+  const handleCharacterChange = async (code) => {
+    try {
+      await changeCurrentCharacter(code);
+      setCharacterSheetOpen(false);
+      refreshAll();
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn("캐릭터 변경 실패:", err?.message);
     }
-    navigate(-1);
   };
 
   return (
     <>
-      <Header text="MY LOCALY" onLeftClick={handleBack} rightIcon={null} />
+      <Header text="MY LOCALY" onLeftClick={() => navigate(-1)} rightIcon={null} />
       <Page>
         <TopChipRow>
           <CharacterSelectChip
@@ -147,37 +162,30 @@ export default function CharacterShopPage() {
         </TopChipRow>
 
         <PreviewArea>
-          <CharacterPreview characterId={draftCharacterId} equip={draftEquip} />
+          <CharacterPreview {...previewProps} />
         </PreviewArea>
 
         <CategoryTabs active={tab} onChange={setTab} />
 
         <ItemGrid
-          items={itemsForTab}
-          selectedId={tab === "owned" ? null : draftEquip?.[tab]}
-          ownedItems={ownedItems}
+          items={items}
+          loading={itemsLoading}
           onPick={handleItemPick}
           hidePriceWhenOwned={tab === "owned"}
         />
       </Page>
 
-      {dirty ? (
-        <FloatingSaveButton type="button" onClick={handleSave}>
-          저장하기
-        </FloatingSaveButton>
-      ) : null}
-
       <PurchaseSheet
-        item={purchaseItem}
+        item={purchaseTarget}
         balance={points}
         loading={purchasing}
         onConfirm={handlePurchaseConfirm}
-        onClose={() => setPurchaseItem(null)}
+        onClose={() => setPurchaseTarget(null)}
       />
 
       <CharacterSelectSheet
         open={characterSheetOpen}
-        activeId={draftCharacterId}
+        characters={charactersData?.characters ?? []}
         onSelect={handleCharacterChange}
         onClose={() => setCharacterSheetOpen(false)}
       />

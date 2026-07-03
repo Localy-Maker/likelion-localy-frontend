@@ -6,26 +6,33 @@ import {
   ItemPrice,
   EmptyMessage,
 } from "@/features/character/styles/CharacterShop.styles";
-import { isItemOwned } from "@/assets/character";
+import { resolveAssetUrl } from "@/features/character/utils/assetUrl";
 
 /**
- * 카테고리별 아이템 3열 그리드.
- * 각 카드 아래에 가격 텍스트를 표시한다. 카드 클릭 시 onPick(id) 호출 — 동일 id 재클릭 시 해제는 부모에서 처리.
+ * 카테고리별 아이템 3열 그리드(서버 아이템 기준).
+ * 서버 아이템 shape: { itemId, category, name, price, imageUrl, isOwned, isEquipped }.
+ * 카드 클릭 시 onPick(item) 호출 — 착용/해제/구매 분기는 부모에서 처리.
  *
  * @param {object} props
- * @param {Array} props.items - 표시할 아이템 목록
- * @param {string|null} props.selectedId - 현재 장착된 아이템 id
- * @param {Array} props.ownedItems - 보유 아이템 id 배열
- * @param {function} props.onPick - 아이템 클릭 시 호출
+ * @param {Array} props.items - 서버 아이템 목록
+ * @param {boolean} [props.loading=false] - 조회 중 여부
+ * @param {function} props.onPick - 아이템 클릭 시 호출(item 전달)
  * @param {boolean} [props.hidePriceWhenOwned=true] - 보유 아이템 탭에서는 가격을 숨김
  */
 export default function ItemGrid({
   items,
-  selectedId,
-  ownedItems,
+  loading = false,
   onPick,
   hidePriceWhenOwned = true,
 }) {
+  if (loading) {
+    return (
+      <ItemGridWrapper>
+        <EmptyMessage>불러오는 중…</EmptyMessage>
+      </ItemGridWrapper>
+    );
+  }
+
   if (!items?.length) {
     return (
       <ItemGridWrapper>
@@ -37,17 +44,17 @@ export default function ItemGrid({
   return (
     <ItemGridWrapper>
       {items.map((item) => {
-        const owned = isItemOwned(item.id, ownedItems);
+        const owned = item.isOwned;
         const showPrice = !(owned && hidePriceWhenOwned);
         return (
-          <ItemSlot key={item.id}>
+          <ItemSlot key={item.itemId}>
             <ItemCard
               type="button"
-              $selected={selectedId === item.id}
-              onClick={() => onPick(item.id)}
+              $selected={item.isEquipped}
+              onClick={() => onPick(item)}
             >
               <ItemImage $locked={!owned}>
-                <img src={item.src} alt={item.id} />
+                <img src={resolveAssetUrl(item.imageUrl)} alt={item.name} />
               </ItemImage>
             </ItemCard>
             {showPrice ? <ItemPrice>{item.price} P</ItemPrice> : null}
