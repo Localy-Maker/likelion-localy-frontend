@@ -22,12 +22,6 @@ export const CardWrapper = styled.div`
   }
 `;
 
-export const CharacterImage = styled.img`
-  width: 70px;
-  height: auto;
-  object-fit: contain;
-`;
-
 export const TextContainer = styled.div`
   display: flex;
   flex-direction: column;
