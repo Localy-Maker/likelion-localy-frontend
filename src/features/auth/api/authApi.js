@@ -1,4 +1,5 @@
 import apiClient from "@/shared/api/client";
+import { hydrateShopStateFromServer } from "@/features/character/api/hydrateShopState";
 
 /**
  * 1. 기본 로그인
@@ -20,7 +21,10 @@ export const login = async (email, password) => {
   if (responseData.refreshToken) {
     localStorage.setItem("refreshToken", responseData.refreshToken);
   }
-  
+
+  // 서버 캐릭터/포인트 상태를 userStore 로 hydrate (best-effort, 로그인 흐름 비차단)
+  hydrateShopStateFromServer();
+
   return responseData;
 };
 
@@ -54,7 +58,10 @@ export const googleLogin = async (idToken) => {
   if (responseData.refreshToken) {
     localStorage.setItem("refreshToken", responseData.refreshToken);
   }
-  
+
+  // 서버 캐릭터/포인트 상태를 userStore 로 hydrate (best-effort, 로그인 흐름 비차단)
+  hydrateShopStateFromServer();
+
   return responseData;
 };
 

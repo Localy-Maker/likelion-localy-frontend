@@ -29,6 +29,9 @@ export const useUserStore = create(
       equippedItems: emptyEquip(),
       // 보유 아이템 ID 목록. "default" 카테고리 아이템은 항상 보유로 간주하므로 추적 대상 외.
       ownedItems: [],
+      // 서버 GET /api/shop/state 의 currentCharacter.equipped 원본(imageUrl 기반).
+      // 서버 주도 렌더 도입 전까지 보관용. (hydrateShopStateFromServer 참고)
+      serverEquipped: null,
 
       setAuth: ({ accessToken, refreshToken, userId, email }) =>
         set({ accessToken, refreshToken, userId, email }),
@@ -65,6 +68,7 @@ export const useUserStore = create(
           equippedCharacter: null,
           equippedItems: emptyEquip(),
           ownedItems: [],
+          serverEquipped: null,
         }),
     }),
     { name: "localy-user" },
