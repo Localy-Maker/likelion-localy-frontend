@@ -19,10 +19,12 @@ export const CardWrapper = styled.div`
   }
 `;
 
-/* 캐릭터: Figma Group 123289 (약 47×60, left 34). 세로는 카드 중앙에 가깝다(top 28~). */
+/* 캐릭터: Figma Group 123289 (약 47×60, 중심 x≈58). CharacterPreview 는 감정 6종을
+   60px 박스 중앙에 렌더하므로, 박스 중심을 디자인 캐릭터 중심(58)에 맞추면(left 28)
+   어떤 감정 캐릭터든 일관되게 그 자리에 놓인다(happiness 기준 좌측 34px 로 정렬). */
 export const CharacterSlot = styled.div`
   position: absolute;
-  left: 34px;
+  left: 28px;
   top: 50%;
   transform: translateY(-50%);
   width: 60px;
