@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
-import { renderEmotionCharacter } from "@/shared/utils/emotionCharacters";
+import { useUserStore } from "@/shared/stores/userStore";
 
 const Backdrop = styled.div`
   position: fixed;
@@ -24,9 +25,11 @@ const Sheet = styled.div`
   max-width: 800px;
   background: ${colors.gray[100]};
   border-radius: 16px 16px 0 0;
-  padding: 20px 16px 28px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
+  padding: 24px 16px 32px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 16px;
   animation: slideUp 0.22s ease-out;
 
@@ -39,83 +42,122 @@ const Sheet = styled.div`
 const Title = styled.h2`
   ${font.semibold16}
   color: ${colors.gray[900]};
-  margin: 0;
+  margin: 0 0 6px;
   text-align: center;
-`;
-
-const Note = styled.p`
-  ${font.regular12}
-  color: ${colors.gray[600]};
-  margin: 0;
-  text-align: center;
+  letter-spacing: -0.43px;
 `;
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(2, 96px);
+  column-gap: 16px;
+  row-gap: 12px;
+  justify-items: center;
+  align-items: center;
+  margin: 12px 0 24px;
 `;
 
 const Option = styled.button`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 16px 8px;
-  background: ${(p) => (p.$active ? colors.blue[20] : colors.gray[200])};
-  border: 2px solid ${(p) => (p.$active ? colors.blue[50] : "transparent")};
-  border-radius: 12px;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  transition: all 0.15s;
+  width: 100%;
+  height: 100%;
 
-  div {
-    transform: scale(1.6);
-    transform-origin: center;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  img {
+    transition: all 0.18s ease;
+    width: ${(p) => (p.$active ? "82px" : "60px")};
+    height: auto;
+    filter: ${(p) =>
+      p.$active
+        ? "drop-shadow(0px 5.28px 2.64px rgba(0,0,0,0.25))"
+        : "none"};
   }
 `;
 
-const OptionLabel = styled.span`
-  ${font.medium12}
-  color: ${colors.gray[900]};
+const ConfirmButton = styled.button`
+  width: 141px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: ${(p) => (p.$enabled ? colors.blue[50] : colors.gray[500])};
+  color: ${colors.blue[10]};
+  ${font.medium14}
+  cursor: ${(p) => (p.$enabled ? "pointer" : "default")};
+  filter: drop-shadow(0px 4px 2px rgba(0, 0, 0, 0.25));
+  transition: background 0.15s;
 `;
 
-const EMOTION_OPTIONS = [
-  { id: "happiness", label: "행복" },
-  { id: "anger", label: "분노" },
-  { id: "sadness", label: "슬픔" },
-  { id: "depression", label: "우울" },
-  { id: "anxiety", label: "불안" },
-  { id: "neutral", label: "중립" },
-];
-
 /**
- * 본체(감정) 캐릭터를 고르는 바텀 시트.
- * 선택 시 상위 onSelect 호출 — 부모는 장착 아이템을 초기화해야 한다 (사용자 명세).
+ * 본체 캐릭터 선택 바텀시트.
+ * 서버에서 받은 캐릭터 목록(code, name, imageUrl)을 렌더한다.
+ * 사용자가 캐릭터 카드를 탭하면 우선 '스테이지' 상태로만 잡히고,
+ * 하단 "선택하기" 버튼을 눌러야 onSelect(code) 가 호출되어 부모(CharacterShopPage)가
+ * 드래프트 캐릭터 변경·셀렉트 시트 닫기 등을 수행한다.
+ *
+ * @param {object} props
+ * @param {boolean} props.open
+ * @param {Array<{code, name, imageUrl}>} props.characters - 서버 캐릭터 목록
+ * @param {function} props.onSelect - (code, imageUrl) 콜백
+ * @param {function} props.onClose
  */
-export default function CharacterSelectSheet({ open, activeId, onSelect, onClose }) {
+export default function CharacterSelectSheet({
+  open,
+  characters = [],
+  onSelect,
+  onClose,
+}) {
+  const nickname = useUserStore((s) => s.nickname) ?? "000";
+  const [staged, setStaged] = useState(null);
+
+  // 시트가 열릴 때마다 선택 해제 상태로 시작 — 사용자가 의식적으로 한 번 더 고르도록.
+  useEffect(() => {
+    if (open) setStaged(null);
+  }, [open]);
+
   if (!open) return null;
+
+  const canConfirm = !!staged;
+
+  const handleConfirm = () => {
+    if (!canConfirm) return;
+    const picked = characters.find((c) => c.code === staged);
+    onSelect?.(staged, picked?.imageUrl ?? null);
+  };
+
   return (
     <Backdrop role="dialog" aria-modal="true" onClick={onClose}>
       <Sheet onClick={(e) => e.stopPropagation()}>
-        <Title>캐릭터 선택</Title>
-        <Note>다른 캐릭터를 선택하면 장착한 아이템이 초기화돼요.</Note>
+        <Title>{nickname}님의 LOCALY 캐릭터를 선택해주세요</Title>
         <Grid>
-          {EMOTION_OPTIONS.map((opt) => (
+          {characters.map((opt) => (
             <Option
-              key={opt.id}
+              key={opt.code}
               type="button"
-              $active={activeId === opt.id}
-              onClick={() => onSelect(opt.id)}
+              $active={staged === opt.code}
+              onClick={() => setStaged(opt.code)}
+              aria-label={opt.name}
             >
-              <div>{renderEmotionCharacter(opt.id)}</div>
-              <OptionLabel>{opt.label}</OptionLabel>
+              <img
+                src={opt.imageUrl}
+                alt={opt.name}
+                width={staged === opt.code ? 82 : 60}
+              />
             </Option>
           ))}
         </Grid>
+        <ConfirmButton
+          type="button"
+          $enabled={canConfirm}
+          onClick={handleConfirm}
+        >
+          선택하기
+        </ConfirmButton>
       </Sheet>
     </Backdrop>
   );
