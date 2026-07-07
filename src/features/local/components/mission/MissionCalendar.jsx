@@ -91,10 +91,9 @@ const Cell = styled.button`
   border-bottom: 1px solid ${colors.gray[300]};
   cursor: ${(p) => (p.$inMonth ? "pointer" : "default")};
   opacity: ${(p) => (p.$inMonth ? 1 : 0.35)};
-  padding: 6px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
+  padding: 0;
+  display: block;
+  overflow: hidden;
   transition: filter 0.15s;
 
   &:hover {
@@ -102,10 +101,34 @@ const Cell = styled.button`
   }
 `;
 
+const Thumbnail = styled.img`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const ThumbnailOverlay = styled.span`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.32) 0%,
+    rgba(0, 0, 0, 0) 50%
+  );
+  pointer-events: none;
+`;
+
 const DayLabel = styled.span`
+  position: absolute;
+  top: 6px;
+  left: 6px;
   ${font.regular10}
-  color: ${(p) => (p.$today ? colors.blue[50] : colors.gray[900])};
+  color: ${(p) =>
+    p.$onImage ? "#FFFFFF" : p.$today ? colors.blue[50] : colors.gray[900]};
   font-weight: ${(p) => (p.$today ? 700 : 400)};
+  text-shadow: ${(p) => (p.$onImage ? "0 0 2px rgba(0,0,0,0.4)" : "none")};
 `;
 
 const WEEK_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
@@ -185,9 +208,10 @@ export default function MissionCalendar() {
           const inMonth = isSameMonth(date, viewMonth);
           const key = format(date, "yyyy-MM-dd");
           const archive = archiveByDate.get(key);
-          // TODO: 백엔드가 일별 미션 카운트를 노출하면 4단계로 세분화. 현재는 hasPhoto 만 사용.
+          const thumbnail = inMonth ? archive?.thumbnailImageUrl : null;
+          // 썸네일이 있으면 이미지로 표시, 없으면 hasPhoto 여부에 따라 히트맵 색.
           let level = 0;
-          if (inMonth) {
+          if (inMonth && !thumbnail) {
             if (archive?.hasPhoto) level = 3;
             else if (archive) level = 1;
           }
@@ -200,7 +224,15 @@ export default function MissionCalendar() {
               type="button"
               disabled={isLoading || isError}
             >
-              <DayLabel $today={isToday(date)}>{date.getDate()}</DayLabel>
+              {thumbnail ? (
+                <>
+                  <Thumbnail src={thumbnail} alt="" loading="lazy" />
+                  <ThumbnailOverlay />
+                </>
+              ) : null}
+              <DayLabel $today={isToday(date)} $onImage={!!thumbnail}>
+                {date.getDate()}
+              </DayLabel>
             </Cell>
           );
         })}
